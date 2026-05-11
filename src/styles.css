@@ -232,8 +232,16 @@ button {
   right: 0;
   bottom: 0;
   z-index: 7;
-  height: calc(124px + var(--safe-bottom));
+  height: calc(144px + var(--safe-bottom));
   pointer-events: none;
+}
+
+.pause-control {
+  position: absolute;
+  top: calc(15px + var(--safe-top));
+  left: 10px;
+  z-index: 8;
+  pointer-events: auto;
 }
 
 .aux-controls,
@@ -243,13 +251,13 @@ button {
 }
 
 .aux-controls {
-  left: 12px;
-  bottom: calc(14px + var(--safe-bottom));
+  left: 4px;
+  bottom: calc(22px + var(--safe-bottom));
   display: grid;
-  grid-template-columns: repeat(3, 34px);
-  grid-auto-rows: 34px;
-  gap: 7px;
-  align-items: center;
+  grid-template-columns: repeat(2, 72px);
+  grid-template-rows: 72px 34px;
+  gap: 0 1px;
+  place-items: center;
 }
 
 .dpad {
@@ -298,6 +306,12 @@ button {
   font-size: 15px;
 }
 
+.pause-button {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+}
+
 .orb-button[data-action="hold"] {
   color: var(--yellow);
 }
@@ -306,7 +320,7 @@ button {
   color: var(--cyan);
 }
 
-.dpad-button {
+.asset-button {
   position: relative;
   display: grid;
   place-items: center;
@@ -326,6 +340,27 @@ button {
     filter 90ms ease,
     opacity 90ms ease,
     transform 90ms ease;
+}
+
+.action-button {
+  width: 76px;
+  height: 76px;
+}
+
+.action-button--rotate {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.action-button--hold {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.aux-controls .orb-button {
+  grid-column: 1;
+  grid-row: 2;
+  justify-self: center;
 }
 
 .dpad-button--up {
@@ -348,7 +383,7 @@ button {
   grid-row: 3;
 }
 
-.dpad-button__icon {
+.asset-button__icon {
   display: block;
   width: 100%;
   height: 100%;
@@ -364,8 +399,8 @@ button {
   filter: brightness(1.28);
 }
 
-.dpad-button:active,
-.dpad-button.is-pressing {
+.asset-button:active,
+.asset-button.is-pressing {
   opacity: 1;
   transform: translateY(5px) scale(0.9);
   filter:
@@ -426,15 +461,25 @@ button {
   }
 
   .aux-controls {
-    left: 9px;
-    grid-template-columns: repeat(3, 31px);
-    grid-auto-rows: 31px;
-    gap: 6px;
+    left: 0;
+    bottom: calc(18px + var(--safe-bottom));
+    grid-template-columns: repeat(2, 65px);
+    grid-template-rows: 65px 31px;
   }
 
   .orb-button {
     width: 31px;
     height: 31px;
+  }
+
+  .pause-button {
+    width: 38px;
+    height: 38px;
+  }
+
+  .action-button {
+    width: 68px;
+    height: 68px;
   }
 
   .dpad {

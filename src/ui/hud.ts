@@ -1,8 +1,10 @@
 import { gameBridge } from "../game/bridge";
 import { Sfx } from "../game/audio/sfx";
 import downIcon from "../game/assets/down.png";
+import holdIcon from "../game/assets/hold.png";
 import leftIcon from "../game/assets/left.png";
 import rightIcon from "../game/assets/right.png";
+import rotateIcon from "../game/assets/rotate.png";
 import upIcon from "../game/assets/up.png";
 import { getShapeCells, PIECE_COLORS } from "../game/simulation/pieces";
 import type { GameEvent, GameState, InputAction, PieceType } from "../game/simulation/types";
@@ -16,6 +18,11 @@ const DPAD_ICONS = {
   moveLeft: leftIcon,
   moveRight: rightIcon,
   softDrop: downIcon,
+} satisfies Partial<Record<InputAction, string>>;
+
+const ACTION_ICONS = {
+  rotateCW: rotateIcon,
+  hold: holdIcon,
 } satisfies Partial<Record<InputAction, string>>;
 
 export function mountHud(root: HTMLElement): void {
@@ -42,26 +49,31 @@ export function mountHud(root: HTMLElement): void {
       </div>
       <div class="status-chip" data-ui="status">Tap any control</div>
       <div class="combo-pop" data-ui="combo"></div>
+      <div class="pause-control">
+        <button class="orb-button pause-button" data-action="pause" aria-label="Pause">Ⅱ</button>
+      </div>
       <div class="mobile-controls" aria-label="Touch controls">
         <div class="aux-controls">
-          <button class="orb-button" data-action="pause" aria-label="Pause">Ⅱ</button>
-          <button class="orb-button" data-action="rotateCW" aria-label="Rotate clockwise">↻</button>
-          <button class="orb-button" data-action="hold" aria-label="Hold piece">⇄</button>
+          <button class="asset-button action-button action-button--rotate" data-action="rotateCW" aria-label="Rotate clockwise">
+            <img class="asset-button__icon" src="${ACTION_ICONS.rotateCW}" alt="" draggable="false" />
+          </button>
+          <button class="asset-button action-button action-button--hold" data-action="hold" aria-label="Hold piece">
+            <img class="asset-button__icon" src="${ACTION_ICONS.hold}" alt="" draggable="false" />
+          </button>
           <button class="orb-button" data-action="restart" aria-label="Restart">↺</button>
-          <button class="orb-button" data-ui="sound" aria-label="Toggle sound">♪</button>
         </div>
         <div class="dpad">
-          <button class="dpad-button dpad-button--up" data-action="hardDrop" aria-label="Hard drop">
-            <img class="dpad-button__icon" src="${DPAD_ICONS.hardDrop}" alt="" draggable="false" />
+          <button class="asset-button dpad-button dpad-button--up" data-action="hardDrop" aria-label="Hard drop">
+            <img class="asset-button__icon" src="${DPAD_ICONS.hardDrop}" alt="" draggable="false" />
           </button>
-          <button class="dpad-button dpad-button--left" data-action="moveLeft" aria-label="Move left">
-            <img class="dpad-button__icon" src="${DPAD_ICONS.moveLeft}" alt="" draggable="false" />
+          <button class="asset-button dpad-button dpad-button--left" data-action="moveLeft" aria-label="Move left">
+            <img class="asset-button__icon" src="${DPAD_ICONS.moveLeft}" alt="" draggable="false" />
           </button>
-          <button class="dpad-button dpad-button--right" data-action="moveRight" aria-label="Move right">
-            <img class="dpad-button__icon" src="${DPAD_ICONS.moveRight}" alt="" draggable="false" />
+          <button class="asset-button dpad-button dpad-button--right" data-action="moveRight" aria-label="Move right">
+            <img class="asset-button__icon" src="${DPAD_ICONS.moveRight}" alt="" draggable="false" />
           </button>
-          <button class="dpad-button dpad-button--down" data-action="softDrop" aria-label="Soft drop">
-            <img class="dpad-button__icon" src="${DPAD_ICONS.softDrop}" alt="" draggable="false" />
+          <button class="asset-button dpad-button dpad-button--down" data-action="softDrop" aria-label="Soft drop">
+            <img class="asset-button__icon" src="${DPAD_ICONS.softDrop}" alt="" draggable="false" />
           </button>
         </div>
       </div>
@@ -75,15 +87,6 @@ export function mountHud(root: HTMLElement): void {
   const next = query(root, "[data-ui='next']");
   const status = query(root, "[data-ui='status']");
   const combo = query(root, "[data-ui='combo']");
-  const sound = query<HTMLButtonElement>(root, "[data-ui='sound']");
-  let soundOn = true;
-
-  sound.addEventListener("click", () => {
-    soundOn = !soundOn;
-    sound.classList.toggle("is-off", !soundOn);
-    sound.textContent = soundOn ? "♪" : "♪̸";
-    sfx.setEnabled(soundOn);
-  });
 
   bindButtons(root, sfx);
 
