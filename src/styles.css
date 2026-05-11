@@ -253,16 +253,16 @@ button {
 }
 
 .dpad {
-  right: 11px;
-  bottom: calc(10px + var(--safe-bottom));
+  right: 4px;
+  bottom: calc(22px + var(--safe-bottom));
   display: grid;
-  grid-template-columns: repeat(3, 43px);
-  grid-template-rows: repeat(3, 36px);
-  gap: 2px;
+  grid-template-columns: repeat(3, 64px);
+  grid-template-rows: repeat(3, 56px);
+  gap: 0;
+  place-items: center;
 }
 
-.orb-button,
-.dpad-button {
+.orb-button {
   position: relative;
   display: grid;
   place-items: center;
@@ -282,8 +282,7 @@ button {
   text-shadow: 0 0 12px rgba(0, 245, 255, 0.65);
 }
 
-.orb-button::after,
-.dpad-button::after {
+.orb-button::after {
   position: absolute;
   inset: 4px;
   border-radius: inherit;
@@ -308,17 +307,30 @@ button {
 }
 
 .dpad-button {
-  width: 43px;
-  height: 36px;
-  border-radius: 5px;
-  font-size: 18px;
-  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 74px;
+  height: 74px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  opacity: 0.9;
+  filter:
+    drop-shadow(0 9px 14px rgba(0, 0, 0, 0.38))
+    drop-shadow(0 0 10px rgba(0, 245, 255, 0.3));
+  touch-action: none;
+  transform: translateZ(0);
+  transition:
+    filter 90ms ease,
+    opacity 90ms ease,
+    transform 90ms ease;
 }
 
 .dpad-button--up {
   grid-column: 2;
   grid-row: 1;
-  color: var(--pink);
 }
 
 .dpad-button--left {
@@ -334,13 +346,33 @@ button {
 .dpad-button--down {
   grid-column: 2;
   grid-row: 3;
-  color: var(--cyan);
+}
+
+.dpad-button__icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .orb-button:active,
-.dpad-button:active {
+.orb-button.is-pressing {
   transform: translateY(2px) scale(0.97);
   filter: brightness(1.28);
+}
+
+.dpad-button:active,
+.dpad-button.is-pressing {
+  opacity: 1;
+  transform: translateY(5px) scale(0.9);
+  filter:
+    brightness(1.28)
+    saturate(1.22)
+    drop-shadow(0 3px 8px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 18px rgba(255, 43, 214, 0.48));
 }
 
 .orb-button.is-off {
@@ -406,14 +438,15 @@ button {
   }
 
   .dpad {
-    right: 8px;
-    grid-template-columns: repeat(3, 39px);
-    grid-template-rows: repeat(3, 34px);
+    right: 0;
+    bottom: calc(18px + var(--safe-bottom));
+    grid-template-columns: repeat(3, 57px);
+    grid-template-rows: repeat(3, 51px);
   }
 
   .dpad-button {
-    width: 39px;
-    height: 34px;
+    width: 66px;
+    height: 66px;
   }
 
   .side-panel {

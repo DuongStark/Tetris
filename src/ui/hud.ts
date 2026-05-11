@@ -1,11 +1,22 @@
 import { gameBridge } from "../game/bridge";
 import { Sfx } from "../game/audio/sfx";
+import downIcon from "../game/assets/down.png";
+import leftIcon from "../game/assets/left.png";
+import rightIcon from "../game/assets/right.png";
+import upIcon from "../game/assets/up.png";
 import { getShapeCells, PIECE_COLORS } from "../game/simulation/pieces";
 import type { GameEvent, GameState, InputAction, PieceType } from "../game/simulation/types";
 
 const PIECE_HEX = Object.fromEntries(
   Object.entries(PIECE_COLORS).map(([piece, color]) => [piece, `#${color.toString(16).padStart(6, "0")}`])
 ) as Record<PieceType, string>;
+
+const DPAD_ICONS = {
+  hardDrop: upIcon,
+  moveLeft: leftIcon,
+  moveRight: rightIcon,
+  softDrop: downIcon,
+} satisfies Partial<Record<InputAction, string>>;
 
 export function mountHud(root: HTMLElement): void {
   const sfx = new Sfx();
@@ -40,10 +51,18 @@ export function mountHud(root: HTMLElement): void {
           <button class="orb-button" data-ui="sound" aria-label="Toggle sound">♪</button>
         </div>
         <div class="dpad">
-          <button class="dpad-button dpad-button--up" data-action="hardDrop" aria-label="Hard drop">↑</button>
-          <button class="dpad-button dpad-button--left" data-action="moveLeft" aria-label="Move left">←</button>
-          <button class="dpad-button dpad-button--right" data-action="moveRight" aria-label="Move right">→</button>
-          <button class="dpad-button dpad-button--down" data-action="softDrop" aria-label="Soft drop">↓</button>
+          <button class="dpad-button dpad-button--up" data-action="hardDrop" aria-label="Hard drop">
+            <img class="dpad-button__icon" src="${DPAD_ICONS.hardDrop}" alt="" draggable="false" />
+          </button>
+          <button class="dpad-button dpad-button--left" data-action="moveLeft" aria-label="Move left">
+            <img class="dpad-button__icon" src="${DPAD_ICONS.moveLeft}" alt="" draggable="false" />
+          </button>
+          <button class="dpad-button dpad-button--right" data-action="moveRight" aria-label="Move right">
+            <img class="dpad-button__icon" src="${DPAD_ICONS.moveRight}" alt="" draggable="false" />
+          </button>
+          <button class="dpad-button dpad-button--down" data-action="softDrop" aria-label="Soft drop">
+            <img class="dpad-button__icon" src="${DPAD_ICONS.softDrop}" alt="" draggable="false" />
+          </button>
         </div>
       </div>
     `
@@ -100,6 +119,7 @@ function bindButtons(root: HTMLElement, sfx: Sfx): void {
 
     button.addEventListener("pointerdown", (event) => {
       event.preventDefault();
+      button.classList.add("is-pressing");
       button.setPointerCapture(event.pointerId);
       send();
       if (repeatActions.has(action)) {
@@ -110,6 +130,7 @@ function bindButtons(root: HTMLElement, sfx: Sfx): void {
     });
 
     const stop = () => {
+      button.classList.remove("is-pressing");
       window.clearInterval(repeaters.get(button));
       repeaters.delete(button);
     };
