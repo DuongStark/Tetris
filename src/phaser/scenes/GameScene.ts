@@ -14,6 +14,8 @@ import {
 } from "../../game/simulation/types";
 import { PIECE_COLORS } from "../../game/simulation/pieces";
 
+const KEY_REPEAT_ACTIONS = new Set<InputAction>(["moveLeft", "moveRight", "softDrop"]);
+
 export class GameScene extends Phaser.Scene {
   private readonly engine = new TetrisEngine();
   private boardGraphics!: Phaser.GameObjects.Graphics;
@@ -58,6 +60,7 @@ export class GameScene extends Phaser.Scene {
     const action = KEY_BINDINGS[event.code];
     if (!action) return;
     event.preventDefault();
+    if (event.repeat && !KEY_REPEAT_ACTIONS.has(action)) return;
     this.dispatch(action);
   };
 
@@ -113,10 +116,13 @@ export class GameScene extends Phaser.Scene {
   private render = (): void => {
     const width = this.scale.width;
     const height = this.scale.height;
-    this.cell = Math.floor(Math.min((width - 104) / BOARD_WIDTH, (height - 218) / BOARD_HEIGHT, 34));
+    const topMargin = Math.floor(Math.max(68, height * 0.075));
+    const bottomReserve = height < 700 ? 214 : height < 760 ? 204 : 196;
+    const availableHeight = Math.max(0, height - topMargin - bottomReserve);
+    this.cell = Math.floor(Math.min((width - 104) / BOARD_WIDTH, availableHeight / BOARD_HEIGHT, 34));
     this.cell = Math.max(18, this.cell);
     this.boardX = Math.floor((width - this.cell * BOARD_WIDTH) / 2);
-    this.boardY = Math.floor(Math.max(68, height * 0.075));
+    this.boardY = topMargin;
 
     const state = this.engine.getState();
     const ghost = this.engine.getGhostPiece();

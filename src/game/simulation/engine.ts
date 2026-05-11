@@ -42,6 +42,7 @@ export class TetrisEngine {
 
   dispatch(action: InputAction): GameEvent[] {
     if (action === "restart") {
+      this.gravityMs = 0;
       this.state = this.createInitialState();
       return [];
     }
@@ -133,6 +134,7 @@ export class TetrisEngine {
   }
 
   private spawnNext(resetHold = true): GameEvent[] {
+    this.gravityMs = 0;
     this.ensureQueue();
     const next = this.state.next.shift() as PieceType;
     this.state.active = spawnPiece(next);

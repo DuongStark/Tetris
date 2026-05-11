@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { RandomBag } from "./randomBag";
 import { TetrisEngine } from "./engine";
 import { PIECES } from "./pieces";
+import { gravityInterval } from "./scoring";
 import { BOARD_WIDTH, type BoardCell, type GameState, type PieceType } from "./types";
 
 describe("RandomBag", () => {
@@ -77,6 +78,25 @@ describe("TetrisEngine", () => {
 
     expect(events.some((event) => event.type === "gameOver")).toBe(true);
     expect(engine.getState().status).toBe("gameOver");
+  });
+
+  it("resets gravity timing after restart and piece spawn", () => {
+    const engine = new TetrisEngine(() => 0);
+    const interval = gravityInterval(1);
+
+    engine.dispatch("pause");
+    engine.tick(interval - 1);
+    engine.dispatch("restart");
+    engine.dispatch("pause");
+    const yAfterRestart = engine.getState().active.y;
+    engine.tick(1);
+    expect(engine.getState().active.y).toBe(yAfterRestart);
+
+    engine.tick(interval - 1);
+    engine.dispatch("hardDrop");
+    const yAfterSpawn = engine.getState().active.y;
+    engine.tick(1);
+    expect(engine.getState().active.y).toBe(yAfterSpawn);
   });
 });
 
