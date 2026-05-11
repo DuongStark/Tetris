@@ -207,9 +207,10 @@ export class TetrisEngine {
   }
 
   private lockPiece(): GameEvent[] {
-    const events: GameEvent[] = [{ type: "pieceLocked", piece: this.state.active.type }];
+    const lockedCells = getCells(this.state.active);
+    const events: GameEvent[] = [{ type: "pieceLocked", piece: this.state.active.type, cells: lockedCells }];
 
-    for (const cell of getCells(this.state.active)) {
+    for (const cell of lockedCells) {
       if (cell.y < 0) {
         this.state.status = "gameOver";
         events.push({ type: "gameOver" });

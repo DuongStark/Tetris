@@ -49,8 +49,9 @@ export function mountHud(root: HTMLElement): void {
       </div>
       <div class="status-chip" data-ui="status">Tap any control</div>
       <div class="combo-pop" data-ui="combo"></div>
-      <div class="pause-control">
+      <div class="system-controls">
         <button class="orb-button pause-button" data-action="pause" aria-label="Pause">Ⅱ</button>
+        <button class="orb-button restart-button" data-action="restart" aria-label="Restart">↺</button>
       </div>
       <div class="mobile-controls" aria-label="Touch controls">
         <div class="aux-controls">
@@ -60,7 +61,6 @@ export function mountHud(root: HTMLElement): void {
           <button class="asset-button action-button action-button--hold" data-action="hold" aria-label="Hold piece">
             <img class="asset-button__icon" src="${ACTION_ICONS.hold}" alt="" draggable="false" />
           </button>
-          <button class="orb-button" data-action="restart" aria-label="Restart">↺</button>
         </div>
         <div class="dpad">
           <button class="asset-button dpad-button dpad-button--up" data-action="hardDrop" aria-label="Hard drop">
@@ -84,6 +84,7 @@ export function mountHud(root: HTMLElement): void {
   const level = query(root, "[data-ui='level']");
   const lines = query(root, "[data-ui='lines']");
   const hold = query(root, "[data-ui='hold']");
+  const holdPanel = query(root, ".side-panel--hold");
   const next = query(root, "[data-ui='next']");
   const status = query(root, "[data-ui='status']");
   const combo = query(root, "[data-ui='combo']");
@@ -104,6 +105,7 @@ export function mountHud(root: HTMLElement): void {
   gameBridge.on("events", (event) => {
     sfx.events(event.detail);
     showCombo(combo, event.detail);
+    showHoldFlash(holdPanel, event.detail);
     vibrate(event.detail);
   });
 }
@@ -191,6 +193,13 @@ function showCombo(target: Element, events: GameEvent[]): void {
   void (target as HTMLElement).offsetWidth;
   target.classList.toggle("is-tetris", tetris);
   target.classList.add("is-showing");
+}
+
+function showHoldFlash(target: Element, events: GameEvent[]): void {
+  if (!events.some((event) => event.type === "holdUsed")) return;
+  target.classList.remove("is-flashing");
+  void (target as HTMLElement).offsetWidth;
+  target.classList.add("is-flashing");
 }
 
 function vibrate(events: GameEvent[]): void {

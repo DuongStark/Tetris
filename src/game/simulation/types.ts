@@ -47,7 +47,7 @@ export interface GameState {
 }
 
 export type GameEvent =
-  | { type: "pieceLocked"; piece: PieceType }
+  | { type: "pieceLocked"; piece: PieceType; cells: CellPosition[] }
   | { type: "lineCleared"; lines: number; rows: number[] }
   | { type: "tetris"; rows: number[] }
   | { type: "comboChanged"; combo: number }
