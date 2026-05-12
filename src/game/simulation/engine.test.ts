@@ -16,6 +16,15 @@ describe("RandomBag", () => {
   });
 });
 
+describe("Scoring", () => {
+  it("accelerates gravity as score increases", () => {
+    expect(gravityInterval(1, 0)).toBe(1000);
+    expect(gravityInterval(1, 2500)).toBe(965);
+    expect(gravityInterval(1, 10000)).toBe(860);
+    expect(gravityInterval(12, 50000)).toBe(70);
+  });
+});
+
 describe("TetrisEngine", () => {
   it("allows SRS wall kicks when rotating near a wall", () => {
     const engine = new TetrisEngine(() => 0);

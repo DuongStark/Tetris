@@ -3,6 +3,7 @@ export function scoreLines(linesCleared: number, level: number): number {
   return (table[linesCleared] ?? 0) * level;
 }
 
-export function gravityInterval(level: number): number {
-  return Math.max(85, 1000 - (level - 1) * 75);
+export function gravityInterval(level: number, score = 0): number {
+  const scoreTier = Math.min(14, Math.floor(score / 2500));
+  return Math.max(70, 1000 - (level - 1) * 75 - scoreTier * 35);
 }

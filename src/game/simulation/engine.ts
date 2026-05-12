@@ -93,7 +93,7 @@ export class TetrisEngine {
 
     this.gravityMs += deltaMs;
     const events: GameEvent[] = [];
-    const interval = gravityInterval(this.state.level);
+    const interval = gravityInterval(this.state.level, this.state.score);
 
     while (this.gravityMs >= interval && this.state.status === "playing") {
       this.gravityMs -= interval;
