@@ -24,6 +24,7 @@ export class GameScene extends Phaser.Scene {
   private boardY = 0;
   private cell = 28;
   private hitStopMs = 0;
+  private unsubscribeAction?: () => void;
 
   constructor() {
     super("GameScene");
@@ -36,9 +37,11 @@ export class GameScene extends Phaser.Scene {
     this.createParticleTexture();
     this.scale.on("resize", this.render, this);
 
-    gameBridge.on("action", (event) => this.dispatch(event.detail));
+    this.unsubscribeAction = gameBridge.on("action", (event) => this.dispatch(event.detail));
     window.addEventListener("keydown", this.handleKeyboard, { passive: false });
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.unsubscribeAction?.();
+      this.scale.off("resize", this.render, this);
       window.removeEventListener("keydown", this.handleKeyboard);
     });
 
@@ -51,9 +54,12 @@ export class GameScene extends Phaser.Scene {
       this.hitStopMs -= delta;
       return;
     }
+    const beforeRevision = this.engine.getRevision();
     const events = this.engine.tick(delta);
     this.handleEvents(events);
-    this.render();
+    if (this.engine.getRevision() !== beforeRevision) {
+      this.render();
+    }
   }
 
   private readonly handleKeyboard = (event: KeyboardEvent): void => {
@@ -319,17 +325,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnBurst(x: number, y: number, color: number, quantity: number, speed: number): void {
+    const budgetedQuantity = this.fxQuantity(quantity);
     const emitter = this.add.particles(x, y, "spark", {
       lifespan: 260,
-      speed: { min: 40, max: speed },
+      speed: { min: 40, max: this.fxSpeed(speed) },
       angle: { min: 0, max: 360 },
       scale: { start: 0.46, end: 0 },
-      quantity,
+      quantity: budgetedQuantity,
       tint: color,
       blendMode: "ADD",
       emitting: false
     });
-    emitter.explode(quantity);
+    emitter.explode(budgetedQuantity);
     this.time.delayedCall(340, () => emitter.destroy());
   }
 
@@ -378,17 +385,31 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnSparkRow(y: number, lines: number): void {
+    const emitQuantity = this.fxQuantity(lines === 4 ? 42 : 22);
+    const explodeQuantity = this.fxQuantity(lines === 4 ? 80 : 38);
     const emitter = this.add.particles(this.boardX + BOARD_WIDTH * this.cell / 2, y, "spark", {
       lifespan: lines === 4 ? 520 : 320,
-      speed: { min: 80, max: lines === 4 ? 420 : 260 },
+      speed: { min: 80, max: this.fxSpeed(lines === 4 ? 420 : 260) },
       angle: { min: 0, max: 360 },
       scale: { start: lines === 4 ? 0.95 : 0.65, end: 0 },
-      quantity: lines === 4 ? 42 : 22,
+      quantity: emitQuantity,
       blendMode: "ADD",
       emitting: false
     });
-    emitter.explode(lines === 4 ? 80 : 38);
+    emitter.explode(explodeQuantity);
     this.time.delayedCall(lines === 4 ? 620 : 420, () => emitter.destroy());
+  }
+
+  private fxQuantity(quantity: number): number {
+    if (this.scale.width <= 480) return Math.max(6, Math.round(quantity * 0.58));
+    if (this.scale.width <= 820) return Math.max(8, Math.round(quantity * 0.75));
+    return quantity;
+  }
+
+  private fxSpeed(speed: number): number {
+    if (this.scale.width <= 480) return speed * 0.82;
+    if (this.scale.width <= 820) return speed * 0.92;
+    return speed;
   }
 
   private createParticleTexture(): void {

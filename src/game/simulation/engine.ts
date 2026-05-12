@@ -17,6 +17,7 @@ export class TetrisEngine {
   private state: GameState;
   private readonly bag: RandomBag;
   private gravityMs = 0;
+  private revision = 0;
 
   constructor(random?: RandomFn) {
     this.bag = new RandomBag(random);
@@ -32,6 +33,10 @@ export class TetrisEngine {
     };
   }
 
+  getRevision(): number {
+    return this.revision;
+  }
+
   getGhostPiece(): ActivePiece {
     let ghost = { ...this.state.active };
     while (!this.collides({ ...ghost, y: ghost.y + 1 })) {
@@ -44,17 +49,24 @@ export class TetrisEngine {
     if (action === "restart") {
       this.gravityMs = 0;
       this.state = this.createInitialState();
+      this.markChanged();
       return [];
     }
 
     if (action === "pause") {
-      if (this.state.status === "playing") this.state.status = "paused";
-      else if (this.state.status === "paused" || this.state.status === "ready") this.state.status = "playing";
+      if (this.state.status === "playing") {
+        this.state.status = "paused";
+        this.markChanged();
+      } else if (this.state.status === "paused" || this.state.status === "ready") {
+        this.state.status = "playing";
+        this.markChanged();
+      }
       return [];
     }
 
     if (this.state.status === "ready") {
       this.state.status = "playing";
+      this.markChanged();
     }
 
     if (this.state.status !== "playing") {
@@ -142,6 +154,7 @@ export class TetrisEngine {
       this.state.holdUsed = false;
     }
     this.ensureQueue();
+    this.markChanged();
 
     if (this.collides(this.state.active)) {
       this.state.status = "gameOver";
@@ -155,6 +168,7 @@ export class TetrisEngine {
     const moved = { ...this.state.active, x: this.state.active.x + dx, y: this.state.active.y + dy };
     if (this.collides(moved)) return false;
     this.state.active = moved;
+    this.markChanged();
     return true;
   }
 
@@ -170,6 +184,7 @@ export class TetrisEngine {
       };
       if (!this.collides(candidate)) {
         this.state.active = candidate;
+        this.markChanged();
         return true;
       }
     }
@@ -182,6 +197,7 @@ export class TetrisEngine {
       distance += 1;
     }
     this.state.score += distance * 2;
+    if (distance > 0) this.markChanged();
     return this.lockPiece();
   }
 
@@ -192,6 +208,7 @@ export class TetrisEngine {
     if (this.state.hold === null) {
       this.state.hold = current;
       this.state.holdUsed = true;
+      this.markChanged();
       const events = this.spawnNext(false);
       return [{ type: "holdUsed", hold: this.state.hold, active: this.state.active.type }, ...events];
     }
@@ -200,6 +217,7 @@ export class TetrisEngine {
     this.state.hold = current;
     this.state.active = spawnPiece(held);
     this.state.holdUsed = true;
+    this.markChanged();
     const events: GameEvent[] = [{ type: "holdUsed", hold: this.state.hold, active: this.state.active.type }];
     if (this.collides(this.state.active)) {
       this.state.status = "gameOver";
@@ -211,6 +229,7 @@ export class TetrisEngine {
   private lockPiece(): GameEvent[] {
     const lockedCells = getCells(this.state.active);
     const events: GameEvent[] = [{ type: "pieceLocked", piece: this.state.active.type, cells: lockedCells }];
+    this.markChanged();
 
     for (const cell of lockedCells) {
       if (cell.y < 0) {
@@ -274,6 +293,10 @@ export class TetrisEngine {
     while (this.state.board.length < BOARD_HEIGHT) {
       this.state.board.unshift(Array<PieceType | null>(BOARD_WIDTH).fill(null));
     }
+  }
+
+  private markChanged(): void {
+    this.revision += 1;
   }
 }
 

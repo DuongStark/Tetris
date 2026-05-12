@@ -107,6 +107,21 @@ describe("TetrisEngine", () => {
     engine.tick(1);
     expect(engine.getState().active.y).toBe(yAfterSpawn);
   });
+
+  it("tracks revisions for render-worthy state changes", () => {
+    const engine = new TetrisEngine(() => 0);
+    const initial = engine.getRevision();
+
+    engine.dispatch("pause");
+    expect(engine.getRevision()).toBeGreaterThan(initial);
+
+    const afterStart = engine.getRevision();
+    engine.tick(999);
+    expect(engine.getRevision()).toBe(afterStart);
+
+    engine.tick(1);
+    expect(engine.getRevision()).toBeGreaterThan(afterStart);
+  });
 });
 
 function mutableState(engine: TetrisEngine): GameState {
