@@ -9,6 +9,11 @@ if (!app) {
   throw new Error("Missing #app root");
 }
 
+const preventBrowserSelection = (event: Event) => event.preventDefault();
+document.addEventListener("selectstart", preventBrowserSelection);
+document.addEventListener("contextmenu", preventBrowserSelection);
+document.addEventListener("gesturestart", preventBrowserSelection, { passive: false } as AddEventListenerOptions);
+
 app.innerHTML = `
   <main class="game-shell">
     <div id="game-container" class="game-canvas" aria-label="Neon Tetris playfield"></div>
