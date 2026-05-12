@@ -12,7 +12,11 @@ if (!app) {
 const preventBrowserSelection = (event: Event) => event.preventDefault();
 document.addEventListener("selectstart", preventBrowserSelection);
 document.addEventListener("contextmenu", preventBrowserSelection);
+document.addEventListener("dblclick", preventBrowserSelection, { passive: false });
 document.addEventListener("gesturestart", preventBrowserSelection, { passive: false } as AddEventListenerOptions);
+document.addEventListener("gesturechange", preventBrowserSelection, { passive: false } as AddEventListenerOptions);
+document.addEventListener("gestureend", preventBrowserSelection, { passive: false } as AddEventListenerOptions);
+document.addEventListener("touchend", preventBrowserSelection, { passive: false });
 
 app.innerHTML = `
   <main class="game-shell">

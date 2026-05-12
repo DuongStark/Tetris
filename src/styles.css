@@ -35,10 +35,13 @@ body,
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: none;
+  -ms-touch-action: none;
 }
 
 html {
   height: -webkit-fill-available;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
