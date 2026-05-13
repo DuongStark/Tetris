@@ -16,10 +16,22 @@ import { PIECE_COLORS } from "../../game/simulation/pieces";
 
 const KEY_REPEAT_ACTIONS = new Set<InputAction>(["moveLeft", "moveRight", "softDrop"]);
 
+const LEVEL_COLORS = [0x00f5ff, 0xff2bd6, 0xffe66d, 0x28ff85, 0x7b61ff, 0xff6b4a, 0x00f5ff, 0xff2bd6, 0xffe66d, 0x28ff85];
+
+interface Star {
+  x: number;
+  y: number;
+  size: number;
+  alpha: number;
+  speed: number;
+  phase: number;
+}
+
 export class GameScene extends Phaser.Scene {
   private readonly engine = new TetrisEngine();
   private boardGraphics!: Phaser.GameObjects.Graphics;
   private fxGraphics!: Phaser.GameObjects.Graphics;
+  private starsGraphics!: Phaser.GameObjects.Graphics;
   private scanlineGraphics!: Phaser.GameObjects.Graphics;
   private boardX = 0;
   private boardY = 0;
@@ -27,6 +39,8 @@ export class GameScene extends Phaser.Scene {
   private hitStopMs = 0;
   private floatOffset = 0;
   private floatTime = 0;
+  private stars: Star[] = [];
+  private ghostPulseTime = 0;
   private unsubscribeAction?: () => void;
 
   constructor() {
@@ -35,10 +49,12 @@ export class GameScene extends Phaser.Scene {
 
   create(): void {
     this.cameras.main.setBackgroundColor(0x060711);
-    this.boardGraphics = this.add.graphics();
-    this.fxGraphics = this.add.graphics();
+    this.starsGraphics = this.add.graphics().setDepth(0);
+    this.boardGraphics = this.add.graphics().setDepth(1);
+    this.fxGraphics = this.add.graphics().setDepth(5);
     this.scanlineGraphics = this.add.graphics().setDepth(10).setAlpha(0.04);
     this.createParticleTexture();
+    this.initStars();
     this.scale.on("resize", this.onResize, this);
 
     this.unsubscribeAction = gameBridge.on("action", (event) => this.dispatch(event.detail));
@@ -55,20 +71,22 @@ export class GameScene extends Phaser.Scene {
 
   update(_time: number, delta: number): void {
     this.floatTime += delta;
+    this.ghostPulseTime += delta;
     const newOffset = Math.round(Math.sin(this.floatTime * 0.002) * 3);
-    if (newOffset !== this.floatOffset) {
-      this.floatOffset = newOffset;
-      this.renderBoard();
-    }
+    const needsRedraw = newOffset !== this.floatOffset;
+    if (needsRedraw) this.floatOffset = newOffset;
+
+    this.drawStars();
 
     if (this.hitStopMs > 0) {
       this.hitStopMs -= delta;
+      if (needsRedraw) this.renderBoard();
       return;
     }
     const beforeRevision = this.engine.getRevision();
     const events = this.engine.tick(delta);
     this.handleEvents(events);
-    if (this.engine.getRevision() !== beforeRevision) {
+    if (this.engine.getRevision() !== beforeRevision || needsRedraw) {
       this.renderBoard();
     }
   }
@@ -166,22 +184,24 @@ export class GameScene extends Phaser.Scene {
   private drawBackdrop(g: Phaser.GameObjects.Graphics): void {
     const w = BOARD_WIDTH * this.cell;
     const h = BOARD_HEIGHT * this.cell;
+    const level = this.engine.getState().level;
+    const borderColor = LEVEL_COLORS[(level - 1) % LEVEL_COLORS.length];
 
     // Outer glow border
-    g.lineStyle(4, 0xff2bd6, 0.12);
+    g.lineStyle(4, borderColor, 0.15);
     g.strokeRect(this.boardX - 16, this.boardY - 16, w + 32, h + 32);
 
     // Main board fill
     g.fillStyle(0x080a19, 0.94);
     g.fillRect(this.boardX - 10, this.boardY - 10, w + 20, h + 20);
 
-    // Primary border (cyan)
-    g.lineStyle(2, 0x00f5ff, 0.9);
+    // Primary border (level color)
+    g.lineStyle(2, borderColor, 0.9);
     g.strokeRect(this.boardX - 10, this.boardY - 10, w + 20, h + 20);
 
     // Corner pixel markers
     const cm = 6;
-    g.fillStyle(0x00f5ff, 0.7);
+    g.fillStyle(borderColor, 0.7);
     g.fillRect(this.boardX - 10, this.boardY - 10, cm, cm);
     g.fillRect(this.boardX + w + 10 - cm, this.boardY - 10, cm, cm);
     g.fillRect(this.boardX - 10, this.boardY + h + 10 - cm, cm, cm);
@@ -211,9 +231,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private drawGhost(g: Phaser.GameObjects.Graphics, ghost: GameState["active"]): void {
+    const pulse = 0.12 + Math.abs(Math.sin(this.ghostPulseTime * 0.004)) * 0.14;
     for (const cell of getCells(ghost)) {
       if (cell.y >= 0) {
-        this.drawCell(g, cell.x, cell.y, PIECE_COLORS[ghost.type], 0.18, true);
+        this.drawCell(g, cell.x, cell.y, PIECE_COLORS[ghost.type], pulse, true);
       }
     }
   }
@@ -450,6 +471,34 @@ export class GameScene extends Phaser.Scene {
     if (this.scale.width <= 480) return speed * 0.82;
     if (this.scale.width <= 820) return speed * 0.92;
     return speed;
+  }
+
+  private initStars(): void {
+    const count = 40;
+    for (let i = 0; i < count; i++) {
+      this.stars.push({
+        x: Math.random() * this.scale.width,
+        y: Math.random() * this.scale.height,
+        size: Math.random() > 0.7 ? 3 : 2,
+        alpha: Math.random() * 0.5 + 0.2,
+        speed: Math.random() * 0.003 + 0.001,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  private drawStars(): void {
+    const g = this.starsGraphics;
+    g.clear();
+    const colors = [0x00f5ff, 0xff2bd6, 0xffe66d, 0xffffff];
+    for (const star of this.stars) {
+      const twinkle = Math.sin(this.floatTime * star.speed + star.phase);
+      const a = star.alpha * (0.5 + twinkle * 0.5);
+      if (a < 0.05) continue;
+      const color = colors[Math.floor((star.phase * 10) % colors.length)];
+      g.fillStyle(color, a);
+      g.fillRect(Math.floor(star.x), Math.floor(star.y), star.size, star.size);
+    }
   }
 
   private createParticleTexture(): void {

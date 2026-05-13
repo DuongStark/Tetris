@@ -97,7 +97,13 @@ export function mountHud(root: HTMLElement): void {
 
   gameBridge.on("state", (event) => {
     const state = event.detail;
-    score.textContent = state.score.toLocaleString("en-US");
+    const newScore = state.score.toLocaleString("en-US");
+    if (score.textContent !== newScore && score.textContent !== "0") {
+      score.classList.remove("is-popping");
+      void score.offsetWidth;
+      score.classList.add("is-popping");
+    }
+    score.textContent = newScore;
     level.textContent = String(state.level);
     lines.textContent = String(state.lines);
     status.textContent = statusText(state);
