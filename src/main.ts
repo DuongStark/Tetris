@@ -3,6 +3,7 @@ import { registerSW } from "virtual:pwa-register";
 import { inject } from "@vercel/analytics";
 import { GameScene } from "./phaser/scenes/GameScene";
 import { mountHud } from "./ui/hud";
+import { mountSwipeControls } from "./game/input/swipe";
 import "./styles.css";
 
 inject();
@@ -32,6 +33,7 @@ app.innerHTML = `
 `;
 
 mountHud(document.querySelector<HTMLElement>("#ui-root") as HTMLElement);
+mountSwipeControls(document.querySelector<HTMLElement>("#game-container") as HTMLElement);
 
 new Phaser.Game({
   type: Phaser.AUTO,
