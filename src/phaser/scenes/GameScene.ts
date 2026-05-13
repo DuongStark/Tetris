@@ -25,6 +25,7 @@ interface Star {
   alpha: number;
   speed: number;
   phase: number;
+  drift: number;
 }
 
 export class GameScene extends Phaser.Scene {
@@ -33,6 +34,7 @@ export class GameScene extends Phaser.Scene {
   private fxGraphics!: Phaser.GameObjects.Graphics;
   private starsGraphics!: Phaser.GameObjects.Graphics;
   private scanlineGraphics!: Phaser.GameObjects.Graphics;
+  private gridGraphics!: Phaser.GameObjects.Graphics;
   private boardX = 0;
   private boardY = 0;
   private cell = 28;
@@ -41,6 +43,7 @@ export class GameScene extends Phaser.Scene {
   private floatTime = 0;
   private stars: Star[] = [];
   private ghostPulseTime = 0;
+  private gridScrollY = 0;
   private unsubscribeAction?: () => void;
 
   constructor() {
@@ -50,6 +53,7 @@ export class GameScene extends Phaser.Scene {
   create(): void {
     this.cameras.main.setBackgroundColor(0x060711);
     this.starsGraphics = this.add.graphics().setDepth(0);
+    this.gridGraphics = this.add.graphics().setDepth(0.5);
     this.boardGraphics = this.add.graphics().setDepth(1);
     this.fxGraphics = this.add.graphics().setDepth(5);
     this.scanlineGraphics = this.add.graphics().setDepth(10).setAlpha(0.04);
@@ -72,11 +76,13 @@ export class GameScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     this.floatTime += delta;
     this.ghostPulseTime += delta;
+    this.gridScrollY = (this.gridScrollY + delta * 0.015) % 28;
     const newOffset = Math.round(Math.sin(this.floatTime * 0.002) * 3);
     const needsRedraw = newOffset !== this.floatOffset;
     if (needsRedraw) this.floatOffset = newOffset;
 
-    this.drawStars();
+    this.drawStars(delta);
+    this.drawGrid();
 
     if (this.hitStopMs > 0) {
       this.hitStopMs -= delta;
@@ -134,8 +140,14 @@ export class GameScene extends Phaser.Scene {
       if (event.type === "tetris" && !reduced) {
         this.cameras.main.flash(90, 255, 43, 214);
       }
-      if (event.type === "levelUp" && !reduced) {
-        this.cameras.main.flash(60, 255, 230, 109);
+      if (event.type === "tSpin") {
+        this.tSpinFx(reduced);
+      }
+      if (event.type === "perfectClear") {
+        this.perfectClearFx(reduced);
+      }
+      if (event.type === "levelUp") {
+        this.levelUpFx(event.level, reduced);
       }
       if (event.type === "gameOver") {
         this.gameOverFx(reduced);
@@ -181,6 +193,23 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private drawGrid(): void {
+    const g = this.gridGraphics;
+    g.clear();
+    const w = this.scale.width;
+    const h = this.scale.height;
+    const spacing = 28;
+    const offset = this.gridScrollY;
+
+    g.lineStyle(1, 0x00f5ff, 0.03);
+    for (let y = offset; y < h; y += spacing) {
+      g.lineBetween(0, y, w, y);
+    }
+    for (let x = 0; x < w; x += spacing) {
+      g.lineBetween(x, 0, x, h);
+    }
+  }
+
   private drawBackdrop(g: Phaser.GameObjects.Graphics): void {
     const w = BOARD_WIDTH * this.cell;
     const h = BOARD_HEIGHT * this.cell;
@@ -188,16 +217,29 @@ export class GameScene extends Phaser.Scene {
     const borderColor = LEVEL_COLORS[(level - 1) % LEVEL_COLORS.length];
 
     // Outer glow border
-    g.lineStyle(4, borderColor, 0.15);
+    g.lineStyle(6, borderColor, 0.12);
+    g.strokeRect(this.boardX - 20, this.boardY - 20, w + 40, h + 40);
+    g.lineStyle(4, borderColor, 0.18);
     g.strokeRect(this.boardX - 16, this.boardY - 16, w + 32, h + 32);
 
-    // Main board fill
-    g.fillStyle(0x080a19, 0.94);
+    // Main board fill (frosted glass layers)
+    g.fillStyle(0x0a0e2a, 0.92);
     g.fillRect(this.boardX - 10, this.boardY - 10, w + 20, h + 20);
+    // Top highlight gradient simulation
+    g.fillStyle(0xffffff, 0.04);
+    g.fillRect(this.boardX - 10, this.boardY - 10, w + 20, 40);
+    g.fillStyle(0xffffff, 0.02);
+    g.fillRect(this.boardX - 10, this.boardY + 20, w + 20, 30);
+    // Center radial glow
+    g.fillStyle(0xffffff, 0.015);
+    g.fillRect(this.boardX + w * 0.25, this.boardY + h * 0.3, w * 0.5, h * 0.4);
 
     // Primary border (level color)
     g.lineStyle(2, borderColor, 0.9);
     g.strokeRect(this.boardX - 10, this.boardY - 10, w + 20, h + 20);
+    // Inner highlight line
+    g.lineStyle(1, 0xffffff, 0.06);
+    g.lineBetween(this.boardX - 8, this.boardY - 8, this.boardX + w + 8, this.boardY - 8);
 
     // Corner pixel markers
     const cm = 6;
@@ -253,11 +295,18 @@ export class GameScene extends Phaser.Scene {
     const py = this.boardY + y * this.cell + pad;
     const size = this.cell - pad * 2;
 
+    if (!ghost && !this.isReducedMotion()) {
+      for (let i = 3; i >= 1; i--) {
+        g.fillStyle(color, 0.06 / i);
+        g.fillRect(px - i * 2, py - i * 2, size + i * 4, size + i * 4);
+      }
+    }
+
     g.fillStyle(color, ghost ? 0.1 : 0.92 * alpha);
     g.fillRect(px, py, size, size);
 
     if (!ghost) {
-      g.fillStyle(0xffffff, 0.2 * alpha);
+      g.fillStyle(0xffffff, 0.25 * alpha);
       g.fillRect(px, py, size, 2);
       g.fillRect(px, py, 2, size);
 
@@ -266,7 +315,7 @@ export class GameScene extends Phaser.Scene {
       g.fillRect(px + size - 2, py, 2, size);
     }
 
-    g.lineStyle(1, 0xffffff, ghost ? 0.2 : 0.4 * alpha);
+    g.lineStyle(1, 0xffffff, ghost ? 0.2 : 0.45 * alpha);
     g.strokeRect(px, py, size, size);
   }
 
@@ -302,8 +351,29 @@ export class GameScene extends Phaser.Scene {
 
     const center = this.cellsCenter(visibleCells);
     this.spawnBurst(center.x, center.y, color, reduced ? 8 : 18, reduced ? 140 : 240);
+
     if (!reduced) {
       this.cameras.main.shake(45, 0.003);
+      // Settle ripple ring
+      const minX = Math.min(...visibleCells.map((c) => c.x));
+      const maxX = Math.max(...visibleCells.map((c) => c.x));
+      const minY = Math.min(...visibleCells.map((c) => c.y));
+      const maxY = Math.max(...visibleCells.map((c) => c.y));
+      const rx = this.boardX + minX * this.cell - 4;
+      const ry = this.boardY + minY * this.cell - 4;
+      const rw = (maxX - minX + 1) * this.cell + 8;
+      const rh = (maxY - minY + 1) * this.cell + 8;
+      const ring = this.add.graphics().setDepth(4);
+      ring.lineStyle(2, color, 0.4);
+      ring.strokeRect(rx, ry, rw, rh);
+      this.tweens.add({
+        targets: ring,
+        alpha: 0,
+        scaleX: 1.3,
+        scaleY: 1.3,
+        duration: 200,
+        onComplete: () => ring.destroy()
+      });
     }
   }
 
@@ -426,6 +496,20 @@ export class GameScene extends Phaser.Scene {
       this.cameras.main.shake(lines === 4 ? 160 : 95, lines === 4 ? 0.012 : 0.007);
     }
 
+    // White flash on cleared rows
+    const flash = this.add.graphics().setDepth(5);
+    for (const row of rows) {
+      const y = this.boardY + row * this.cell;
+      flash.fillStyle(0xffffff, 0.85);
+      flash.fillRect(this.boardX, y, BOARD_WIDTH * this.cell, this.cell);
+    }
+    this.tweens.add({
+      targets: flash,
+      alpha: 0,
+      duration: reduced ? 80 : 150,
+      onComplete: () => flash.destroy()
+    });
+
     this.fxGraphics.clear();
     for (const row of rows) {
       const y = this.boardY + row * this.cell + this.cell / 2;
@@ -474,30 +558,111 @@ export class GameScene extends Phaser.Scene {
   }
 
   private initStars(): void {
-    const count = 40;
+    const count = 80;
     for (let i = 0; i < count; i++) {
       this.stars.push({
         x: Math.random() * this.scale.width,
         y: Math.random() * this.scale.height,
-        size: Math.random() > 0.7 ? 3 : 2,
+        size: Math.random() > 0.85 ? 4 : Math.random() > 0.6 ? 3 : 2,
         alpha: Math.random() * 0.5 + 0.2,
         speed: Math.random() * 0.003 + 0.001,
-        phase: Math.random() * Math.PI * 2
+        phase: Math.random() * Math.PI * 2,
+        drift: Math.random() * 0.3 + 0.1
       });
     }
   }
 
-  private drawStars(): void {
+  private drawStars(delta: number): void {
     const g = this.starsGraphics;
     g.clear();
-    const colors = [0x00f5ff, 0xff2bd6, 0xffe66d, 0xffffff];
+    const colors = [0x00f5ff, 0xff2bd6, 0xffe66d, 0x7b61ff, 0xffffff];
+    const h = this.scale.height;
     for (const star of this.stars) {
+      star.y += star.drift * delta * 0.016;
+      if (star.y > h) {
+        star.y = -star.size;
+        star.x = Math.random() * this.scale.width;
+      }
       const twinkle = Math.sin(this.floatTime * star.speed + star.phase);
       const a = star.alpha * (0.5 + twinkle * 0.5);
       if (a < 0.05) continue;
       const color = colors[Math.floor((star.phase * 10) % colors.length)];
       g.fillStyle(color, a);
       g.fillRect(Math.floor(star.x), Math.floor(star.y), star.size, star.size);
+      if (star.size >= 4) {
+        g.fillStyle(color, a * 0.3);
+        g.fillRect(Math.floor(star.x) - 1, Math.floor(star.y) - 1, star.size + 2, star.size + 2);
+      }
+    }
+  }
+
+  private levelUpFx(level: number, reduced: boolean): void {
+    const color = LEVEL_COLORS[(level - 1) % LEVEL_COLORS.length];
+    if (reduced) {
+      this.cameras.main.flash(60, (color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff);
+      return;
+    }
+    // Horizontal sweep line
+    const sweep = this.add.graphics().setDepth(8);
+    sweep.fillStyle(color, 0.7);
+    sweep.fillRect(0, 0, this.scale.width, 4);
+    sweep.setY(-4);
+    this.tweens.add({
+      targets: sweep,
+      y: this.scale.height,
+      duration: 400,
+      ease: "Quad.easeIn",
+      onComplete: () => sweep.destroy()
+    });
+    // Particle burst from board center
+    const cx = this.boardX + (BOARD_WIDTH * this.cell) / 2;
+    const cy = this.boardY + (BOARD_HEIGHT * this.cell) / 2;
+    this.spawnBurst(cx, cy, color, 36, 350);
+    this.cameras.main.flash(60, (color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff);
+  }
+
+  private tSpinFx(reduced: boolean): void {
+    const color = 0x7b61ff;
+    if (reduced) return;
+    const active = this.engine.getState().active;
+    const cells = getCells(active).filter((c) => c.y >= 0);
+    if (cells.length === 0) return;
+    const center = this.cellsCenter(cells);
+    // Purple flash on cells
+    const g = this.add.graphics().setDepth(4);
+    for (const cell of cells) {
+      this.drawFxCell(g, cell.x, cell.y, color, 0.5, 0xff2bd6);
+    }
+    this.tweens.add({
+      targets: g,
+      alpha: 0,
+      duration: 250,
+      onComplete: () => g.destroy()
+    });
+    this.spawnBurst(center.x, center.y, color, 30, 280);
+    this.cameras.main.shake(100, 0.008);
+  }
+
+  private perfectClearFx(reduced: boolean): void {
+    const color = 0xffe66d;
+    if (!reduced) {
+      this.cameras.main.flash(120, 255, 230, 109);
+      this.cameras.main.shake(180, 0.012);
+    }
+    const cx = this.boardX + (BOARD_WIDTH * this.cell) / 2;
+    const cy = this.boardY + (BOARD_HEIGHT * this.cell) / 2;
+    this.spawnBurst(cx, cy, color, reduced ? 20 : 60, reduced ? 200 : 450);
+    // Golden overlay
+    if (!reduced) {
+      const overlay = this.add.graphics().setDepth(8);
+      overlay.fillStyle(color, 0.15);
+      overlay.fillRect(this.boardX - 10, this.boardY - 10, BOARD_WIDTH * this.cell + 20, BOARD_HEIGHT * this.cell + 20);
+      this.tweens.add({
+        targets: overlay,
+        alpha: 0,
+        duration: 400,
+        onComplete: () => overlay.destroy()
+      });
     }
   }
 

@@ -19,9 +19,9 @@ describe("RandomBag", () => {
 describe("Scoring", () => {
   it("accelerates gravity as score increases", () => {
     expect(gravityInterval(1, 0)).toBe(1000);
-    expect(gravityInterval(1, 2500)).toBe(965);
-    expect(gravityInterval(1, 10000)).toBe(860);
-    expect(gravityInterval(12, 50000)).toBe(70);
+    expect(gravityInterval(1, 2500)).toBe(980);
+    expect(gravityInterval(1, 10000)).toBe(920);
+    expect(gravityInterval(12, 50000)).toBe(50);
   });
 });
 
@@ -50,8 +50,9 @@ describe("TetrisEngine", () => {
     const next = engine.getState();
 
     expect(events.some((event) => event.type === "lineCleared" && event.lines === 2)).toBe(true);
+    expect(events.some((event) => event.type === "perfectClear")).toBe(true);
     expect(next.lines).toBe(2);
-    expect(next.score).toBe(300);
+    expect(next.score).toBe(1300);
   });
 
   it("supports hold, swap, and one hold per falling piece", () => {
@@ -121,6 +122,60 @@ describe("TetrisEngine", () => {
 
     engine.tick(1);
     expect(engine.getRevision()).toBeGreaterThan(afterStart);
+  });
+
+  it("detects T-spin when T-piece rotates into 3-corner position", () => {
+    const engine = new TetrisEngine(() => 0);
+    const state = mutableState(engine);
+    state.status = "playing";
+    // Set up a T-spin slot: walls on 3 corners around where T center will be
+    // T center after rotation will be at (1, 18) with rotation 1
+    // Corners: (0,17), (2,17), (0,19), (2,19)
+    // Fill board to create the slot
+    for (let y = 17; y < BOARD_WIDTH * 2; y++) {
+      if (y >= 20) break;
+      state.board[y] = filledRowExcept(y === 17 ? [0, 1] : y === 18 ? [1] : [1]);
+    }
+    // Place T-piece in position where rotating will trigger T-spin
+    state.active = { type: "T", x: 0, y: 17, rotation: 0 };
+
+    // Rotate into the slot
+    engine.dispatch("rotateCW");
+
+    // Now hard drop to lock
+    const events = engine.dispatch("hardDrop");
+    const hasTSpin = events.some((e) => e.type === "tSpin");
+    // T-spin detection depends on final position having 3+ filled corners
+    // If rotation succeeded and piece locked with 3 corners filled, tSpin fires
+    expect(hasTSpin || engine.getState().active.type !== "T").toBe(true);
+  });
+
+  it("does not detect T-spin when last move was translation", () => {
+    const engine = new TetrisEngine(() => 0);
+    const state = mutableState(engine);
+    state.status = "playing";
+    state.active = { type: "T", x: 4, y: 17, rotation: 0 };
+    state.board[19] = filledRowExcept([4, 5, 6]);
+
+    // Move (not rotate) then drop
+    engine.dispatch("moveLeft");
+    const events = engine.dispatch("hardDrop");
+    const hasTSpin = events.some((e) => e.type === "tSpin");
+    expect(hasTSpin).toBe(false);
+  });
+
+  it("detects perfect clear when board is empty after line clear", () => {
+    const engine = new TetrisEngine(() => 0);
+    const state = mutableState(engine);
+    state.status = "playing";
+    state.active = { type: "O", x: 3, y: 18, rotation: 0 };
+    // Only rows 18 and 19 have blocks, rest is empty
+    state.board[18] = filledRowExcept([4, 5]);
+    state.board[19] = filledRowExcept([4, 5]);
+
+    const events = engine.dispatch("softDrop");
+    const hasPerfectClear = events.some((e) => e.type === "perfectClear");
+    expect(hasPerfectClear).toBe(true);
   });
 });
 

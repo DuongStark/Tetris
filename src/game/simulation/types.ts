@@ -50,6 +50,8 @@ export type GameEvent =
   | { type: "pieceLocked"; piece: PieceType; cells: CellPosition[] }
   | { type: "lineCleared"; lines: number; rows: number[] }
   | { type: "tetris"; rows: number[] }
+  | { type: "tSpin"; lines: number }
+  | { type: "perfectClear"; level: number }
   | { type: "comboChanged"; combo: number }
   | { type: "levelUp"; level: number }
   | { type: "holdUsed"; hold: PieceType; active: PieceType }

@@ -5,5 +5,6 @@ export function scoreLines(linesCleared: number, level: number): number {
 
 export function gravityInterval(level: number, score = 0): number {
   const scoreTier = Math.min(14, Math.floor(score / 2500));
-  return Math.max(70, 1000 - (level - 1) * 75 - scoreTier * 35);
+  const base = 1000 * Math.pow(0.82, level - 1);
+  return Math.max(50, Math.round(base - scoreTier * 20));
 }

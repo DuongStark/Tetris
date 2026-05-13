@@ -13,6 +13,8 @@ const SVG_ICONS = {
 import { getShapeCells, PIECE_COLORS } from "../game/simulation/pieces";
 import type { GameEvent, GameState, InputAction, PieceType } from "../game/simulation/types";
 
+const LEVEL_COLORS = [0x00f5ff, 0xff2bd6, 0xffe66d, 0x28ff85, 0x7b61ff, 0xff6b4a, 0x00f5ff, 0xff2bd6, 0xffe66d, 0x28ff85];
+
 const PIECE_HEX = Object.fromEntries(
   Object.entries(PIECE_COLORS).map(([piece, color]) => [piece, `#${color.toString(16).padStart(6, "0")}`])
 ) as Record<PieceType, string>;
@@ -53,6 +55,17 @@ export function mountHud(root: HTMLElement): void {
       </div>
       <div class="status-chip" data-ui="status">Tap any control</div>
       <div class="combo-pop" data-ui="combo"></div>
+      <div class="keys-help">
+        <div class="keys-help__title">Controls</div>
+        <div class="keys-help__list">
+          <span class="keys-help__key">&larr; &rarr;</span><span class="keys-help__action">Move</span>
+          <span class="keys-help__key">&uarr; / X</span><span class="keys-help__action">Rotate</span>
+          <span class="keys-help__key">&darr;</span><span class="keys-help__action">Soft drop</span>
+          <span class="keys-help__key">Space</span><span class="keys-help__action">Hard drop</span>
+          <span class="keys-help__key">C / Shift</span><span class="keys-help__action">Hold</span>
+          <span class="keys-help__key">P / Esc</span><span class="keys-help__action">Pause</span>
+        </div>
+      </div>
       <div class="system-controls">
         <button class="orb-button pause-button" data-action="pause" aria-label="Pause"><span class="orb-button__icon">${SVG_ICONS.pause}</span></button>
         <button class="orb-button restart-button" data-action="restart" aria-label="Restart"><span class="orb-button__icon">${SVG_ICONS.restart}</span></button>
@@ -110,6 +123,8 @@ export function mountHud(root: HTMLElement): void {
     renderPreview(hold, state.hold);
     renderQueue(next, state.next);
     document.body.dataset.gameStatus = state.status;
+    const levelColor = LEVEL_COLORS[(state.level - 1) % LEVEL_COLORS.length];
+    document.documentElement.style.setProperty("--level-color", `#${levelColor.toString(16).padStart(6, "0")}`);
   });
 
   gameBridge.on("events", (event) => {
@@ -192,16 +207,31 @@ function renderPreview(target: Element, piece: PieceType | null): void {
 function showCombo(target: Element, events: GameEvent[]): void {
   const clear = events.find((event): event is Extract<GameEvent, { type: "lineCleared" }> => event.type === "lineCleared");
   const tetris = events.some((event) => event.type === "tetris");
+  const tSpin = events.find((event): event is Extract<GameEvent, { type: "tSpin" }> => event.type === "tSpin");
+  const perfectClear = events.some((event) => event.type === "perfectClear");
   const combo = events.find((event): event is Extract<GameEvent, { type: "comboChanged" }> => event.type === "comboChanged");
-  if (!clear) return;
 
-  target.textContent = tetris ? "TETRIS" : `+${clear.lines} LINE${clear.lines > 1 ? "S" : ""}`;
+  if (!clear && !tSpin && !perfectClear) return;
+
+  if (perfectClear) {
+    target.textContent = "PERFECT CLEAR";
+  } else if (tSpin) {
+    const suffix = tSpin.lines > 0 ? ` ${["", "SINGLE", "DOUBLE", "TRIPLE"][tSpin.lines]}` : "";
+    target.textContent = `T-SPIN${suffix}`;
+  } else if (tetris) {
+    target.textContent = "TETRIS";
+  } else if (clear) {
+    target.textContent = `+${clear.lines} LINE${clear.lines > 1 ? "S" : ""}`;
+  }
+
   if (combo && combo.combo > 0) {
     target.textContent += `  x${combo.combo + 1}`;
   }
-  target.classList.remove("is-showing", "is-tetris");
+  target.classList.remove("is-showing", "is-tetris", "is-tspin", "is-perfect");
   void (target as HTMLElement).offsetWidth;
-  target.classList.toggle("is-tetris", tetris);
+  target.classList.toggle("is-tetris", tetris && !perfectClear && !tSpin);
+  target.classList.toggle("is-tspin", !!tSpin && !perfectClear);
+  target.classList.toggle("is-perfect", perfectClear);
   target.classList.add("is-showing");
 }
 

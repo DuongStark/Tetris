@@ -18,6 +18,7 @@ export class TetrisEngine {
   private readonly bag: RandomBag;
   private gravityMs = 0;
   private revision = 0;
+  private lastMoveWasRotation = false;
 
   constructor(random?: RandomFn) {
     this.bag = new RandomBag(random);
@@ -168,6 +169,7 @@ export class TetrisEngine {
     const moved = { ...this.state.active, x: this.state.active.x + dx, y: this.state.active.y + dy };
     if (this.collides(moved)) return false;
     this.state.active = moved;
+    this.lastMoveWasRotation = false;
     this.markChanged();
     return true;
   }
@@ -184,6 +186,7 @@ export class TetrisEngine {
       };
       if (!this.collides(candidate)) {
         this.state.active = candidate;
+        this.lastMoveWasRotation = true;
         this.markChanged();
         return true;
       }
@@ -242,9 +245,17 @@ export class TetrisEngine {
 
     const clearedRows = this.findFullRows();
     if (clearedRows.length > 0) {
+      const isTSpin = this.detectTSpin();
       this.clearRows(clearedRows);
       this.state.lines += clearedRows.length;
       this.state.score += scoreLines(clearedRows.length, this.state.level);
+
+      if (isTSpin) {
+        const tSpinBonus = [400, 800, 1200, 1600][clearedRows.length] ?? 400;
+        this.state.score += tSpinBonus * this.state.level;
+        events.push({ type: "tSpin", lines: clearedRows.length });
+      }
+
       this.state.combo += 1;
       if (this.state.combo > 0) {
         this.state.score += this.state.combo * 50;
@@ -254,6 +265,12 @@ export class TetrisEngine {
         events.push({ type: "tetris", rows: clearedRows });
       }
       events.push({ type: "comboChanged", combo: this.state.combo });
+
+      const isPerfectClear = this.state.board.every((row) => row.every((cell) => cell === null));
+      if (isPerfectClear) {
+        this.state.score += 1000 * this.state.level;
+        events.push({ type: "perfectClear", level: this.state.level });
+      }
     } else {
       this.state.combo = -1;
       events.push({ type: "comboChanged", combo: this.state.combo });
@@ -285,6 +302,25 @@ export class TetrisEngine {
       }
     });
     return rows;
+  }
+
+  private detectTSpin(): boolean {
+    if (this.state.active.type !== "T" || !this.lastMoveWasRotation) return false;
+    const cx = this.state.active.x + 1;
+    const cy = this.state.active.y + 1;
+    const corners = [
+      [cx - 1, cy - 1],
+      [cx + 1, cy - 1],
+      [cx - 1, cy + 1],
+      [cx + 1, cy + 1]
+    ];
+    let filled = 0;
+    for (const [x, y] of corners) {
+      if (x < 0 || x >= BOARD_WIDTH || y >= BOARD_HEIGHT || (y >= 0 && this.state.board[y][x] !== null)) {
+        filled += 1;
+      }
+    }
+    return filled >= 3;
   }
 
   private clearRows(rows: number[]): void {
