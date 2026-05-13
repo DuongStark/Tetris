@@ -20,10 +20,13 @@ export class GameScene extends Phaser.Scene {
   private readonly engine = new TetrisEngine();
   private boardGraphics!: Phaser.GameObjects.Graphics;
   private fxGraphics!: Phaser.GameObjects.Graphics;
+  private scanlineGraphics!: Phaser.GameObjects.Graphics;
   private boardX = 0;
   private boardY = 0;
   private cell = 28;
   private hitStopMs = 0;
+  private floatOffset = 0;
+  private floatTime = 0;
   private unsubscribeAction?: () => void;
 
   constructor() {
@@ -34,22 +37,30 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor(0x060711);
     this.boardGraphics = this.add.graphics();
     this.fxGraphics = this.add.graphics();
+    this.scanlineGraphics = this.add.graphics().setDepth(10).setAlpha(0.04);
     this.createParticleTexture();
-    this.scale.on("resize", this.render, this);
+    this.scale.on("resize", this.onResize, this);
 
     this.unsubscribeAction = gameBridge.on("action", (event) => this.dispatch(event.detail));
     window.addEventListener("keydown", this.handleKeyboard, { passive: false });
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.unsubscribeAction?.();
-      this.scale.off("resize", this.render, this);
+      this.scale.off("resize", this.onResize, this);
       window.removeEventListener("keydown", this.handleKeyboard);
     });
 
-    this.render();
+    this.onResize();
     gameBridge.publishState(this.engine.getState());
   }
 
   update(_time: number, delta: number): void {
+    this.floatTime += delta;
+    const newOffset = Math.round(Math.sin(this.floatTime * 0.002) * 3);
+    if (newOffset !== this.floatOffset) {
+      this.floatOffset = newOffset;
+      this.renderBoard();
+    }
+
     if (this.hitStopMs > 0) {
       this.hitStopMs -= delta;
       return;
@@ -58,7 +69,7 @@ export class GameScene extends Phaser.Scene {
     const events = this.engine.tick(delta);
     this.handleEvents(events);
     if (this.engine.getRevision() !== beforeRevision) {
-      this.render();
+      this.renderBoard();
     }
   }
 
@@ -85,7 +96,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.handleEvents(events);
-    this.render();
+    this.renderBoard();
     gameBridge.publishState(after);
   }
 
@@ -116,7 +127,12 @@ export class GameScene extends Phaser.Scene {
     gameBridge.publishState(this.engine.getState());
   }
 
-  private render = (): void => {
+  private onResize = (): void => {
+    this.renderBoard();
+    this.drawScanlines();
+  };
+
+  private renderBoard = (): void => {
     const width = this.scale.width;
     const height = this.scale.height;
     const topMargin = Math.floor(Math.max(68, height * 0.075));
@@ -125,7 +141,7 @@ export class GameScene extends Phaser.Scene {
     this.cell = Math.floor(Math.min((width - 104) / BOARD_WIDTH, availableHeight / BOARD_HEIGHT, 34));
     this.cell = Math.max(18, this.cell);
     this.boardX = Math.floor((width - this.cell * BOARD_WIDTH) / 2);
-    this.boardY = topMargin;
+    this.boardY = topMargin + this.floatOffset;
 
     const state = this.engine.getState();
     const ghost = this.engine.getGhostPiece();
@@ -138,17 +154,41 @@ export class GameScene extends Phaser.Scene {
     this.drawActive(g, state);
   };
 
+  private drawScanlines(): void {
+    const g = this.scanlineGraphics;
+    g.clear();
+    g.lineStyle(1, 0xffffff, 1);
+    for (let y = 0; y < this.scale.height; y += 3) {
+      g.lineBetween(0, y, this.scale.width, y);
+    }
+  }
+
   private drawBackdrop(g: Phaser.GameObjects.Graphics): void {
     const w = BOARD_WIDTH * this.cell;
     const h = BOARD_HEIGHT * this.cell;
-    g.fillStyle(0x080a19, 0.92);
-    g.fillRect(this.boardX - 10, this.boardY - 10, w + 20, h + 20);
-    g.lineStyle(2, 0x00f5ff, 0.8);
-    g.strokeRect(this.boardX - 10, this.boardY - 10, w + 20, h + 20);
-    g.lineStyle(2, 0xff2bd6, 0.15);
-    g.strokeRect(this.boardX - 14, this.boardY - 14, w + 28, h + 28);
 
-    g.lineStyle(1, 0xffffff, 0.055);
+    // Outer glow border
+    g.lineStyle(4, 0xff2bd6, 0.12);
+    g.strokeRect(this.boardX - 16, this.boardY - 16, w + 32, h + 32);
+
+    // Main board fill
+    g.fillStyle(0x080a19, 0.94);
+    g.fillRect(this.boardX - 10, this.boardY - 10, w + 20, h + 20);
+
+    // Primary border (cyan)
+    g.lineStyle(2, 0x00f5ff, 0.9);
+    g.strokeRect(this.boardX - 10, this.boardY - 10, w + 20, h + 20);
+
+    // Corner pixel markers
+    const cm = 6;
+    g.fillStyle(0x00f5ff, 0.7);
+    g.fillRect(this.boardX - 10, this.boardY - 10, cm, cm);
+    g.fillRect(this.boardX + w + 10 - cm, this.boardY - 10, cm, cm);
+    g.fillRect(this.boardX - 10, this.boardY + h + 10 - cm, cm, cm);
+    g.fillRect(this.boardX + w + 10 - cm, this.boardY + h + 10 - cm, cm, cm);
+
+    // Grid lines
+    g.lineStyle(1, 0xffffff, 0.04);
     for (let x = 0; x <= BOARD_WIDTH; x += 1) {
       const px = this.boardX + x * this.cell;
       g.lineBetween(px, this.boardY, px, this.boardY + h);

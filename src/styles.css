@@ -50,9 +50,11 @@ body {
   inset: 0;
   color: white;
   background:
-    repeating-linear-gradient(90deg, rgba(0, 245, 255, 0.04) 0 1px, transparent 1px 28px),
-    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 28px),
-    #060711;
+    repeating-linear-gradient(90deg, rgba(0, 245, 255, 0.05) 0 1px, transparent 1px 28px),
+    repeating-linear-gradient(180deg, rgba(255, 43, 214, 0.03) 0 1px, transparent 1px 28px),
+    radial-gradient(ellipse at 50% 0%, rgba(0, 245, 255, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 100%, rgba(255, 43, 214, 0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0e2a 0%, #060711 40%, #0a0520 100%);
   -webkit-user-drag: none;
 }
 
@@ -266,9 +268,9 @@ button {
   right: 4px;
   bottom: calc(22px + var(--safe-bottom));
   display: grid;
-  grid-template-columns: repeat(3, 64px);
-  grid-template-rows: repeat(3, 56px);
-  gap: 0;
+  grid-template-columns: repeat(3, 58px);
+  grid-template-rows: repeat(3, 50px);
+  gap: 2px;
   place-items: center;
 }
 
@@ -317,9 +319,9 @@ button {
   position: relative;
   display: grid;
   place-items: center;
-  width: 74px;
-  height: 74px;
-  padding: 16px;
+  width: 56px;
+  height: 56px;
+  padding: 12px;
   border: 2px solid rgba(211, 226, 255, 0.3);
   background: rgba(43, 54, 96, 0.3);
   opacity: 0.9;
@@ -328,8 +330,9 @@ button {
 }
 
 .action-button {
-  width: 76px;
-  height: 76px;
+  width: 64px;
+  height: 64px;
+  padding: 14px;
 }
 
 .action-button--rotate {
@@ -395,6 +398,8 @@ button {
 .orb-button.is-pressing {
   transform: translateY(2px);
   filter: brightness(1.4);
+  border-color: var(--cyan);
+  box-shadow: 0 0 6px var(--cyan);
 }
 
 .asset-button:active,
@@ -402,6 +407,8 @@ button {
   opacity: 1;
   transform: translateY(2px);
   filter: brightness(1.4);
+  border-color: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan), inset 0 0 4px rgba(0, 245, 255, 0.3);
 }
 
 .orb-button.is-off {
@@ -488,20 +495,21 @@ button {
   }
 
   .action-button {
-    width: 68px;
-    height: 68px;
+    width: 58px;
+    height: 58px;
   }
 
   .dpad {
     right: 0;
     bottom: calc(18px + var(--safe-bottom));
-    grid-template-columns: repeat(3, 57px);
-    grid-template-rows: repeat(3, 51px);
+    grid-template-columns: repeat(3, 52px);
+    grid-template-rows: repeat(3, 46px);
+    gap: 2px;
   }
 
   .dpad-button {
-    width: 66px;
-    height: 66px;
+    width: 50px;
+    height: 50px;
   }
 
   .side-panel {
