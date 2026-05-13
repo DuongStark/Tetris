@@ -273,10 +273,20 @@ export class GameScene extends Phaser.Scene {
   }
 
   private drawGhost(g: Phaser.GameObjects.Graphics, ghost: GameState["active"]): void {
-    const pulse = 0.12 + Math.abs(Math.sin(this.ghostPulseTime * 0.004)) * 0.14;
+    const pulse = 0.18 + Math.abs(Math.sin(this.ghostPulseTime * 0.004)) * 0.18;
+    const color = PIECE_COLORS[ghost.type];
     for (const cell of getCells(ghost)) {
       if (cell.y >= 0) {
-        this.drawCell(g, cell.x, cell.y, PIECE_COLORS[ghost.type], pulse, true);
+        const pad = Math.max(3, Math.floor(this.cell * 0.15));
+        const px = this.boardX + cell.x * this.cell + pad;
+        const py = this.boardY + cell.y * this.cell + pad;
+        const size = this.cell - pad * 2;
+        // Fill with piece color at low alpha
+        g.fillStyle(color, 0.12 * pulse * 4);
+        g.fillRect(px, py, size, size);
+        // Neon outline
+        g.lineStyle(2, color, 0.35 + pulse * 0.5);
+        g.strokeRect(px, py, size, size);
       }
     }
   }

@@ -4,12 +4,12 @@ export const PIECES: PieceType[] = ["I", "J", "L", "O", "S", "T", "Z"];
 
 export const PIECE_COLORS: Record<PieceType, number> = {
   I: 0x00f5ff,
-  J: 0x4b7bff,
-  L: 0xff9f1c,
+  J: 0x2b7fff,
+  L: 0xff8c00,
   O: 0xffe66d,
   S: 0x28ff85,
-  T: 0xff2bd6,
-  Z: 0xff3864
+  T: 0x9b59ff,
+  Z: 0xff2b6b
 };
 
 const SHAPES: Record<PieceType, CellPosition[][]> = {

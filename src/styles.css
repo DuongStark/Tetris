@@ -100,7 +100,7 @@ button {
 
 .score-panel__score {
   color: #fff;
-  font-size: clamp(14px, 4vw, 22px);
+  font-size: clamp(16px, 5vw, 24px);
   line-height: 1;
   text-shadow: 0 0 8px rgba(0, 245, 255, 0.6), 0 0 16px rgba(0, 245, 255, 0.3);
   transition: transform 80ms steps(2), color 80ms steps(2);
@@ -136,9 +136,10 @@ button {
   display: grid;
   justify-items: end;
   gap: 4px;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 8px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: clamp(8px, 2.5vw, 10px);
   white-space: nowrap;
+  text-shadow: 0 0 6px rgba(0, 245, 255, 0.4);
 }
 
 .side-panel {
@@ -318,8 +319,10 @@ button {
   place-items: center;
   width: 34px;
   height: 34px;
-  border: 2px solid rgba(211, 226, 255, 0.5);
-  background: rgba(43, 54, 96, 0.6);
+  border: 2px solid rgba(0, 245, 255, 0.45);
+  border-radius: 4px;
+  background: rgba(9, 11, 28, 0.7);
+  box-shadow: 0 0 6px rgba(0, 245, 255, 0.15), inset 0 0 3px rgba(0, 245, 255, 0.05);
   color: rgba(255, 255, 255, 0.9);
   opacity: 0.8;
 }
@@ -360,8 +363,10 @@ button {
   width: 48px;
   height: 48px;
   padding: 10px;
-  border: 2px solid rgba(211, 226, 255, 0.3);
-  background: rgba(43, 54, 96, 0.3);
+  border: 2px solid rgba(0, 245, 255, 0.4);
+  border-radius: 4px;
+  background: rgba(9, 11, 28, 0.7);
+  box-shadow: 0 0 8px rgba(0, 245, 255, 0.15), inset 0 0 4px rgba(0, 245, 255, 0.05);
   opacity: 0.9;
   touch-action: none;
   transform: translateZ(0);
@@ -422,14 +427,17 @@ button {
 
 .action-button--hold .asset-button__icon {
   color: var(--yellow);
+  filter: drop-shadow(0 0 5px rgba(255, 230, 109, 0.5));
 }
 
 .action-button--rotate .asset-button__icon {
   color: var(--cyan);
+  filter: drop-shadow(0 0 5px rgba(0, 245, 255, 0.5));
 }
 
 .dpad-button .asset-button__icon {
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(255, 255, 255, 0.92);
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
 }
 
 .orb-button:active,
@@ -437,7 +445,7 @@ button {
   transform: translateY(2px);
   filter: brightness(1.4);
   border-color: var(--cyan);
-  box-shadow: 0 0 6px var(--cyan);
+  box-shadow: 0 0 10px var(--cyan), inset 0 0 4px rgba(0, 245, 255, 0.3);
 }
 
 .asset-button:active,
@@ -446,7 +454,7 @@ button {
   transform: translateY(2px);
   filter: brightness(1.4);
   border-color: var(--cyan);
-  box-shadow: 0 0 8px var(--cyan), inset 0 0 4px rgba(0, 245, 255, 0.3);
+  box-shadow: 0 0 12px var(--cyan), inset 0 0 6px rgba(0, 245, 255, 0.3);
 }
 
 .orb-button.is-off {
@@ -509,12 +517,14 @@ button {
   z-index: 4;
   padding: 12px 18px;
   border: 1px solid var(--level-color);
+  border-radius: 4px;
   background: linear-gradient(180deg, rgba(0, 245, 255, 0.03) 0%, var(--panel) 30%);
   box-shadow: 0 0 12px rgba(0, 245, 255, 0.1), inset 0 0 6px rgba(0, 245, 255, 0.03);
   font-size: 8px;
   color: rgba(255, 255, 255, 0.7);
   pointer-events: none;
   transition: border-color 400ms, box-shadow 400ms;
+  max-width: 320px;
 }
 
 @media (hover: hover) and (pointer: fine) {
