@@ -504,7 +504,40 @@ button {
 
 @media (hover: hover) and (pointer: fine) {
   .mobile-controls {
-    display: none;
+    display: none !important;
+  }
+
+  .score-panel__score {
+    font-size: 26px;
+  }
+
+  .level-panel {
+    font-size: 11px;
+  }
+
+  .side-panel {
+    width: 56px;
+    padding: 8px 6px 10px;
+  }
+
+  .side-panel--hold {
+    left: max(12px, calc(50% - 240px));
+  }
+
+  .side-panel--next {
+    right: max(12px, calc(50% - 240px));
+  }
+
+  .preview,
+  .queue__item {
+    width: 42px;
+    height: 38px;
+  }
+
+  .preview__grid {
+    grid-template-columns: repeat(4, 8px);
+    grid-template-rows: repeat(3, 8px);
+    gap: 2px;
   }
 }
 
@@ -565,13 +598,6 @@ button {
   .hud {
     left: calc(50% - 360px);
     right: calc(50% - 360px);
-  }
-
-  .mobile-controls {
-    left: 50%;
-    right: auto;
-    width: min(720px, 100vw);
-    transform: translateX(-50%);
   }
 }
 

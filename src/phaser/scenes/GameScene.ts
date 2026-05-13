@@ -166,9 +166,11 @@ export class GameScene extends Phaser.Scene {
     const width = this.scale.width;
     const height = this.scale.height;
     const topMargin = Math.floor(Math.max(68, height * 0.075));
-    const bottomReserve = height < 700 ? 214 : height < 760 ? 204 : 196;
+    const isDesktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const bottomReserve = isDesktop ? 70 : height < 700 ? 214 : height < 760 ? 204 : 196;
+    const maxCell = isDesktop ? 38 : 34;
     const availableHeight = Math.max(0, height - topMargin - bottomReserve);
-    this.cell = Math.floor(Math.min((width - 104) / BOARD_WIDTH, availableHeight / BOARD_HEIGHT, 34));
+    this.cell = Math.floor(Math.min((width - 104) / BOARD_WIDTH, availableHeight / BOARD_HEIGHT, maxCell));
     this.cell = Math.max(18, this.cell);
     this.boardX = Math.floor((width - this.cell * BOARD_WIDTH) / 2);
     this.boardY = topMargin + this.floatOffset;
