@@ -69,6 +69,14 @@ export function mountHud(root: HTMLElement): void {
       <div class="system-controls">
         <button class="orb-button pause-button" data-action="pause" aria-label="Pause"><span class="orb-button__icon">${SVG_ICONS.pause}</span></button>
         <button class="orb-button restart-button" data-action="restart" aria-label="Restart"><span class="orb-button__icon">${SVG_ICONS.restart}</span></button>
+        <button class="orb-button settings-button" aria-label="Settings" data-open-settings><span class="orb-button__icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><path d="M6 1h4v2h2v2h2v4h-2v2h-2v2h-4v-2h-2v-2h-2v-4h2v-2h2v-2zM7 5v1h-1v1h-1v2h1v1h1v1h2v-1h1v-1h1v-2h-1v-1h-1v-1h-2z" fill="currentColor" fill-rule="evenodd"/></svg></span></button>
+      </div>
+      <div class="settings-panel" data-ui="settings">
+        <div class="settings-panel__title">Settings</div>
+        <label class="settings-toggle"><input type="checkbox" data-setting="sound" checked><span class="settings-toggle__label">Sound</span></label>
+        <label class="settings-toggle"><input type="checkbox" data-setting="ghost" checked><span class="settings-toggle__label">Ghost Piece</span></label>
+        <label class="settings-toggle"><input type="checkbox" data-setting="crt" checked><span class="settings-toggle__label">CRT Effects</span></label>
+        <label class="settings-toggle"><input type="checkbox" data-setting="bobbing"><span class="settings-toggle__label">Board Float</span></label>
       </div>
       <div class="mobile-controls" aria-label="Touch controls">
         <div class="aux-controls">
@@ -109,6 +117,7 @@ export function mountHud(root: HTMLElement): void {
 
   bindButtons(root, sfx);
   initControlsToggle(root);
+  initSettings(root, sfx);
 
   const unlockAudio = () => {
     sfx.unlock();
@@ -293,6 +302,55 @@ function statusText(state: GameState): string {
   if (state.status === "paused") return "Paused";
   if (state.status === "gameOver") return "Game over";
   return state.combo > 0 ? `Combo ${state.combo + 1}` : "";
+}
+
+function initSettings(root: HTMLElement, sfx: Sfx): void {
+  const panel = root.querySelector<HTMLElement>("[data-ui='settings']");
+  const openBtn = root.querySelector<HTMLElement>("[data-open-settings]");
+  if (!panel || !openBtn) return;
+
+  const defaults: Record<string, boolean> = { sound: true, ghost: true, crt: true, bobbing: false };
+  const settings: Record<string, boolean> = { ...defaults };
+
+  for (const key of Object.keys(defaults)) {
+    const stored = localStorage.getItem(`setting-${key}`);
+    if (stored !== null) settings[key] = stored === "true";
+  }
+
+  const apply = () => {
+    sfx.setEnabled(settings.sound);
+    document.body.classList.toggle("no-ghost", !settings.ghost);
+    document.body.classList.toggle("no-crt", !settings.crt);
+    document.body.classList.toggle("board-bobbing", settings.bobbing);
+
+    panel.querySelectorAll<HTMLInputElement>("input[data-setting]").forEach((input) => {
+      const key = input.dataset.setting!;
+      input.checked = settings[key];
+    });
+  };
+
+  apply();
+
+  openBtn.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    panel.classList.toggle("is-open");
+  });
+
+  panel.addEventListener("change", (e) => {
+    const input = e.target as HTMLInputElement;
+    const key = input.dataset.setting;
+    if (!key) return;
+    settings[key] = input.checked;
+    localStorage.setItem(`setting-${key}`, String(input.checked));
+    apply();
+  });
+
+  document.addEventListener("pointerdown", (e) => {
+    if (!panel.classList.contains("is-open")) return;
+    if (panel.contains(e.target as Node) || openBtn.contains(e.target as Node)) return;
+    panel.classList.remove("is-open");
+  });
 }
 
 function initControlsToggle(root: HTMLElement): void {

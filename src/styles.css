@@ -625,6 +625,94 @@ button {
   color: var(--cyan);
 }
 
+/* Settings panel */
+.settings-panel {
+  position: fixed;
+  top: calc(55px + var(--safe-top));
+  left: 10px;
+  z-index: 20;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--level-color);
+  border-radius: 4px;
+  background: var(--panel-strong);
+  box-shadow: 0 0 16px rgba(0, 245, 255, 0.15), inset 0 0 8px rgba(0, 245, 255, 0.03);
+  pointer-events: auto;
+  min-width: 150px;
+}
+
+.settings-panel.is-open {
+  display: flex;
+}
+
+.settings-panel__title {
+  color: var(--level-color);
+  font-size: 7px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 0 6px currentColor;
+  margin-bottom: 2px;
+}
+
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 7px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.settings-toggle input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 28px;
+  height: 14px;
+  border: 1px solid rgba(0, 245, 255, 0.4);
+  border-radius: 7px;
+  background: rgba(9, 11, 28, 0.8);
+  position: relative;
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms;
+  flex-shrink: 0;
+}
+
+.settings-toggle input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transition: transform 150ms, background 150ms;
+}
+
+.settings-toggle input[type="checkbox"]:checked {
+  background: rgba(0, 245, 255, 0.2);
+  border-color: var(--cyan);
+}
+
+.settings-toggle input[type="checkbox"]:checked::after {
+  transform: translateX(14px);
+  background: var(--cyan);
+  box-shadow: 0 0 4px var(--cyan);
+}
+
+.settings-toggle__label {
+  white-space: nowrap;
+}
+
+/* Settings-driven visibility */
+body.no-crt .crt-overlay,
+body.no-crt .vignette-overlay,
+body.no-crt .aberration-overlay {
+  display: none !important;
+}
+
 body.controls-hidden .mobile-controls {
   display: none !important;
 }

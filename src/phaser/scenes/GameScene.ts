@@ -39,6 +39,7 @@ export class GameScene extends Phaser.Scene {
   private boardY = 0;
   private cell = 28;
   private hitStopMs = 0;
+  private floatOffset = 0;
   private floatTime = 0;
   private stars: Star[] = [];
   private gridScrollY = 0;
@@ -75,6 +76,12 @@ export class GameScene extends Phaser.Scene {
     this.floatTime += delta;
     this.gridScrollY = (this.gridScrollY + delta * 0.015) % 28;
 
+    if (document.body.classList.contains("board-bobbing")) {
+      this.floatOffset = Math.round(Math.sin(this.floatTime * 0.002) * 3);
+    } else {
+      this.floatOffset = 0;
+    }
+
     this.drawStars(delta);
     this.drawGrid();
 
@@ -82,12 +89,9 @@ export class GameScene extends Phaser.Scene {
       this.hitStopMs -= delta;
       return;
     }
-    const beforeRevision = this.engine.getRevision();
     const events = this.engine.tick(delta);
     this.handleEvents(events);
-    if (this.engine.getRevision() !== beforeRevision) {
-      this.renderBoard();
-    }
+    this.renderBoard();
   }
 
   private readonly handleKeyboard = (event: KeyboardEvent): void => {
@@ -167,7 +171,7 @@ export class GameScene extends Phaser.Scene {
     this.cell = Math.floor(Math.min((width - 104) / BOARD_WIDTH, availableHeight / BOARD_HEIGHT, maxCell));
     this.cell = Math.max(18, this.cell);
     this.boardX = Math.floor((width - this.cell * BOARD_WIDTH) / 2);
-    this.boardY = topMargin;
+    this.boardY = topMargin + this.floatOffset;
 
     const state = this.engine.getState();
     const ghost = this.engine.getGhostPiece();
@@ -176,7 +180,9 @@ export class GameScene extends Phaser.Scene {
 
     this.drawBackdrop(g);
     this.drawBoardCells(g, state);
-    this.drawGhost(g, ghost);
+    if (!document.body.classList.contains("no-ghost")) {
+      this.drawGhost(g, ghost);
+    }
     this.drawActive(g, state);
   };
 
