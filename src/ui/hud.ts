@@ -7,6 +7,8 @@ const SVG_ICONS = {
   right: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40 24L16 8V40L40 24Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>`,
   rotate: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M34 14A14 14 0 1 0 38 24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M34 8L40 14L34 20" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   hold: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="28" height="28" rx="4" stroke="currentColor" stroke-width="3" fill="none"/><path d="M18 18H30V30H18Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" fill="none"/></svg>`,
+  pause: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="12" width="6" height="24" rx="2" fill="currentColor"/><rect x="28" y="12" width="6" height="24" rx="2" fill="currentColor"/></svg>`,
+  restart: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 24A12 12 0 1 1 24 36" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M12 18V24H18" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
 } as const;
 import { getShapeCells, PIECE_COLORS } from "../game/simulation/pieces";
 import type { GameEvent, GameState, InputAction, PieceType } from "../game/simulation/types";
@@ -52,8 +54,8 @@ export function mountHud(root: HTMLElement): void {
       <div class="status-chip" data-ui="status">Tap any control</div>
       <div class="combo-pop" data-ui="combo"></div>
       <div class="system-controls">
-        <button class="orb-button pause-button" data-action="pause" aria-label="Pause">Ⅱ</button>
-        <button class="orb-button restart-button" data-action="restart" aria-label="Restart">↺</button>
+        <button class="orb-button pause-button" data-action="pause" aria-label="Pause"><span class="orb-button__icon">${SVG_ICONS.pause}</span></button>
+        <button class="orb-button restart-button" data-action="restart" aria-label="Restart"><span class="orb-button__icon">${SVG_ICONS.restart}</span></button>
       </div>
       <div class="mobile-controls" aria-label="Touch controls">
         <div class="aux-controls">
