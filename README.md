@@ -1,30 +1,34 @@
 <div align="center">
 
-<img src="docs/screenshot-desktop.png" width="100%" alt="Neon Tetris" />
+<img src="docs/screenshot-desktop.png" width="100%" alt="Neon Tetris — Desktop" />
 
-# Neon Tetris
+# ✦ NEON TETRIS
 
-A Tetris clone that got out of hand.
+**Cyberpunk Tetris. Runs in your browser. No install.**
 
-[![Play](https://img.shields.io/badge/▶_Play_Now-tetris.pixpress.art-ff2bd6?style=for-the-badge)](https://tetris.pixpress.art)
+[![Play Now](https://img.shields.io/badge/▶%20PLAY%20NOW-tetris.pixpress.art-ff2bd6?style=for-the-badge&labelColor=0a0e2a)](https://tetris.pixpress.art)
 &nbsp;
-[![License](https://img.shields.io/badge/License-MIT-222?style=for-the-badge)](LICENSE)
+[![GitHub](https://img.shields.io/badge/Source-GitHub-222?style=for-the-badge&logo=github)](https://github.com/DuongStark/Tetris)
+&nbsp;
+[![License](https://img.shields.io/badge/License-MIT-7b61ff?style=for-the-badge)](LICENSE)
 
 </div>
 
 ---
 
-Cyberpunk-themed Tetris with CRT scanlines, chromatic aberration, particle explosions, and a synthesized soundtrack. No audio files — every sound is generated on the fly via Web Audio API.
-
-T-spin detection, perfect clear, combo chains. Ghost piece. Works on mobile.
-
 <div align="center">
-<img src="docs/screenshot-mobile.png" width="320" alt="Mobile view" />
+<img src="docs/screenshot-mobile.png" width="280" alt="Neon Tetris — Mobile" />
 </div>
+
+---
+
+Tetris with a neon/cyberpunk coat of paint. CRT scanlines, chromatic aberration, vignette — inspired by Balatro's visual style. Every sound effect is synthesized live via Web Audio API, no audio files bundled. T-spin detection, perfect clear, combo chains. Swipe gestures on mobile with DAS/ARR. Settings menu to toggle everything.
 
 ---
 
 ## Controls
+
+### Desktop
 
 | Key | Action |
 |-----|--------|
@@ -35,13 +39,29 @@ T-spin detection, perfect clear, combo chains. Ghost piece. Works on mobile.
 | `C` / `Shift` | Hold |
 | `P` / `Esc` | Pause |
 
-On mobile, use the on-screen D-pad.
+### Mobile
+
+Swipe left/right to move, swipe down to drop, swipe up to hard drop, tap to rotate. On-screen buttons also available.
+
+---
+
+## Scoring
+
+| Move | Points |
+|------|--------|
+| Single | 100 × level |
+| Double | 300 × level |
+| Triple | 500 × level |
+| Tetris | 800 × level |
+| T-Spin | 400–1600 × level |
+| Perfect Clear | 1000 × level |
+| Combo | +50 per chain |
 
 ---
 
 ## Stack
 
-Phaser 3 · TypeScript · Vite · Web Audio API · PWA
+[Phaser 3](https://phaser.io) · TypeScript · Vite · Web Audio API · PWA
 
 ---
 
@@ -56,17 +76,14 @@ npm run dev
 
 ---
 
-## Scoring
+## Settings
 
-| Move | Points |
-|------|--------|
-| Single | 100 × level |
-| Double | 300 × level |
-| Triple | 500 × level |
-| Tetris | 800 × level |
-| T-Spin | 400–1600 × level |
-| Perfect Clear | 1000 × level |
+In-game settings menu (⚙) lets you toggle:
+- CRT effects (scanlines, vignette, chromatic aberration)
+- Ghost piece
+- Board float animation
+- Sound
 
 ---
 
-MIT
+MIT © DuongStark
