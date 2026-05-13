@@ -148,6 +148,7 @@ export function mountHud(root: HTMLElement): void {
     showCombo(combo, event.detail);
     showHoldFlash(holdPanel, event.detail);
     vibrate(event.detail);
+    triggerBalatroFx(event.detail, score);
   });
 }
 
@@ -296,4 +297,39 @@ function query<T extends Element = HTMLElement>(root: HTMLElement, selector: str
   const element = root.querySelector<T>(selector);
   if (!element) throw new Error(`Missing UI element: ${selector}`);
   return element;
+}
+
+function triggerBalatroFx(events: GameEvent[], scoreEl: Element): void {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const tetris = events.some((e) => e.type === "tetris");
+  const tSpin = events.some((e) => e.type === "tSpin");
+  const perfectClear = events.some((e) => e.type === "perfectClear");
+  const levelUp = events.some((e) => e.type === "levelUp");
+  const gameOver = events.some((e) => e.type === "gameOver");
+  const lineClear = events.some((e) => e.type === "lineCleared");
+
+  const isBigEvent = tetris || tSpin || perfectClear || levelUp || gameOver;
+
+  if (isBigEvent) {
+    const aberration = document.querySelector(".aberration-overlay");
+    if (aberration) {
+      aberration.classList.remove("is-active");
+      void (aberration as HTMLElement).offsetWidth;
+      aberration.classList.add("is-active");
+    }
+
+    const shell = document.querySelector(".game-shell");
+    if (shell) {
+      shell.classList.remove("is-wobbling");
+      void (shell as HTMLElement).offsetWidth;
+      shell.classList.add("is-wobbling");
+    }
+  }
+
+  if (lineClear || isBigEvent) {
+    scoreEl.classList.remove("is-bloom");
+    void (scoreEl as HTMLElement).offsetWidth;
+    scoreEl.classList.add("is-bloom");
+  }
 }

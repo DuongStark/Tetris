@@ -23,6 +23,9 @@ app.innerHTML = `
     <div id="game-container" class="game-canvas" aria-label="Neon Tetris playfield"></div>
     <div id="ui-root" class="ui-root"></div>
   </main>
+  <div class="crt-overlay" aria-hidden="true"></div>
+  <div class="vignette-overlay" aria-hidden="true"></div>
+  <div class="aberration-overlay" aria-hidden="true"></div>
 `;
 
 mountHud(document.querySelector<HTMLElement>("#ui-root") as HTMLElement);
