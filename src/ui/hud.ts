@@ -108,6 +108,14 @@ export function mountHud(root: HTMLElement): void {
 
   bindButtons(root, sfx);
 
+  const unlockAudio = () => {
+    sfx.unlock();
+    window.removeEventListener("keydown", unlockAudio);
+    window.removeEventListener("pointerdown", unlockAudio);
+  };
+  window.addEventListener("keydown", unlockAudio);
+  window.addEventListener("pointerdown", unlockAudio);
+
   gameBridge.on("state", (event) => {
     const state = event.detail;
     const newScore = state.score.toLocaleString("en-US");

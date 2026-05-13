@@ -279,7 +279,7 @@ button {
 }
 
 .system-controls {
-  position: absolute;
+  position: fixed;
   top: calc(15px + var(--safe-top));
   left: 10px;
   z-index: 8;
