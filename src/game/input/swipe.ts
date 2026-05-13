@@ -1,13 +1,13 @@
 import { gameBridge } from "../bridge";
 
-const H_THRESHOLD = 15;
-const V_THRESHOLD = 40;
+const H_THRESHOLD = 30;
+const V_THRESHOLD = 50;
 const TAP_MAX_TIME = 200;
-const TAP_MAX_DIST = 10;
-const HARD_DROP_DIST = 120;
-const HARD_DROP_VELOCITY = 0.5;
-const DAS_DELAY = 220;
-const ARR_DELAY = 85;
+const TAP_MAX_DIST = 15;
+const HARD_DROP_DIST = 150;
+const HARD_DROP_VELOCITY = 0.8;
+const DAS_DELAY = 300;
+const ARR_DELAY = 120;
 
 export function mountSwipeControls(container: HTMLElement): void {
   let startX = 0;
