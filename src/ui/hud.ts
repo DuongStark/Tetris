@@ -112,9 +112,17 @@ export function mountHud(root: HTMLElement): void {
     sfx.unlock();
     window.removeEventListener("keydown", unlockAudio);
     window.removeEventListener("pointerdown", unlockAudio);
+    window.removeEventListener("touchstart", unlockAudio);
+    window.removeEventListener("touchend", unlockAudio);
   };
   window.addEventListener("keydown", unlockAudio);
   window.addEventListener("pointerdown", unlockAudio);
+  window.addEventListener("touchstart", unlockAudio, { passive: true });
+  window.addEventListener("touchend", unlockAudio, { passive: true });
+
+  gameBridge.on("action", (event) => {
+    sfx.action(event.detail);
+  });
 
   gameBridge.on("state", (event) => {
     const state = event.detail;
@@ -197,19 +205,37 @@ function renderPreview(target: Element, piece: PieceType | null): void {
   }
 
   const cells = getShapeCells(piece);
-  const minX = Math.min(...cells.map((cell) => cell.x));
-  const minY = Math.min(...cells.map((cell) => cell.y));
+  const minX = Math.min(...cells.map((c) => c.x));
+  const minY = Math.min(...cells.map((c) => c.y));
+  const maxX = Math.max(...cells.map((c) => c.x));
+  const maxY = Math.max(...cells.map((c) => c.y));
+  const cols = maxX - minX + 1;
+  const rows = maxY - minY + 1;
+  const cellSize = 7;
+  const gap = 1.5;
+
   const grid = document.createElement("div");
-  grid.className = "preview__grid";
+  grid.style.display = "grid";
+  grid.style.gridTemplateColumns = `repeat(${cols}, ${cellSize}px)`;
+  grid.style.gridTemplateRows = `repeat(${rows}, ${cellSize}px)`;
+  grid.style.gap = `${gap}px`;
   grid.style.setProperty("--piece-color", PIECE_HEX[piece]);
 
   for (const cell of cells) {
     const block = document.createElement("i");
+    block.style.display = "block";
+    block.style.background = PIECE_HEX[piece];
+    block.style.border = "1px solid rgba(255,255,255,0.25)";
     block.style.gridColumn = String(cell.x - minX + 1);
     block.style.gridRow = String(cell.y - minY + 1);
     grid.append(block);
   }
-  target.append(grid);
+
+  // Center the grid inside the container
+  const wrapper = document.createElement("div");
+  wrapper.style.cssText = "display:flex;align-items:center;justify-content:center;width:100%;height:100%;";
+  wrapper.append(grid);
+  target.append(wrapper);
 }
 
 function showCombo(target: Element, events: GameEvent[]): void {

@@ -197,6 +197,9 @@ button {
   height: 100%;
   border: 0;
   background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .preview__grid {
@@ -280,11 +283,12 @@ button {
 
 .system-controls {
   position: fixed;
-  top: calc(15px + var(--safe-top));
-  left: 10px;
+  top: calc(10px + var(--safe-top));
+  left: calc(10px + var(--safe-left, 0px));
   z-index: 8;
   display: flex;
-  gap: 8px;
+  flex-direction: row;
+  gap: 6px;
   pointer-events: auto;
 }
 
@@ -314,36 +318,40 @@ button {
 }
 
 .orb-button {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border: 2px solid rgba(0, 245, 255, 0.45);
-  border-radius: 4px;
-  background: rgba(9, 11, 28, 0.7);
-  box-shadow: 0 0 6px rgba(0, 245, 255, 0.15), inset 0 0 3px rgba(0, 245, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(0, 245, 255, 0.5);
+  border-radius: 6px;
+  background: rgba(9, 11, 28, 0.85);
+  box-shadow: 0 0 8px rgba(0, 245, 255, 0.2), inset 0 0 4px rgba(0, 245, 255, 0.05);
   color: rgba(255, 255, 255, 0.9);
-  opacity: 0.8;
+  cursor: pointer;
+  padding: 0;
 }
 
 .pause-button,
 .restart-button {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
 }
 
 .orb-button__icon {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 18px;
   height: 18px;
   pointer-events: none;
+  line-height: 0;
 }
 
 .orb-button__icon svg {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 18px;
+  height: 18px;
   filter: drop-shadow(0 0 3px currentColor);
   image-rendering: pixelated;
 }
@@ -615,14 +623,14 @@ button {
   }
 
   .orb-button {
-    width: 31px;
-    height: 31px;
+    width: 36px;
+    height: 36px;
   }
 
   .pause-button,
   .restart-button {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
   }
 
   .action-button {

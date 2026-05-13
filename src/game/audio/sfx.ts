@@ -19,14 +19,14 @@ export class Sfx {
 
   action(action: InputAction): void {
     if (action === "moveLeft" || action === "moveRight" || action === "rotateCW") {
-      this.beep(280, 0.025, 0.025, "triangle");
+      this.beep(280, 0.025, 0.08, "triangle");
     }
     if (action === "hold") {
-      this.sweep(440, 520, 0.04, 0.03, "triangle");
+      this.sweep(440, 520, 0.04, 0.1, "triangle");
     }
     if (action === "hardDrop") {
-      this.beep(80, 0.05, 0.06, "triangle");
-      this.beep(160, 0.03, 0.03, "square");
+      this.beep(80, 0.05, 0.18, "triangle");
+      this.beep(160, 0.03, 0.1, "square");
     }
   }
 
@@ -38,23 +38,23 @@ export class Sfx {
       if (event.type === "lineCleared") {
         const baseFreq = Math.min(1400, 520 + comboCount * 60);
         if (event.lines === 4) {
-          this.chord([baseFreq, baseFreq * 1.25, baseFreq * 1.5], 0.15, 0.08);
+          this.chord([baseFreq, baseFreq * 1.25, baseFreq * 1.5], 0.15, 0.3);
         } else {
-          this.arpeggio([baseFreq, baseFreq * 1.2, baseFreq * 1.5], 0.04, 0.06, "square");
+          this.arpeggio([baseFreq, baseFreq * 1.2, baseFreq * 1.5], 0.04, 0.18, "square");
         }
       }
       if (event.type === "tSpin") {
-        this.sweep(900, 400, 0.08, 0.05, "sawtooth");
-        this.beep(1200, 0.1, 0.04, "sine");
+        this.sweep(900, 400, 0.08, 0.2, "sawtooth");
+        this.beep(1200, 0.1, 0.15, "sine");
       }
       if (event.type === "perfectClear") {
-        this.arpeggio([523, 659, 784, 1047], 0.08, 0.07, "square");
+        this.arpeggio([523, 659, 784, 1047], 0.08, 0.2, "square");
       }
       if (event.type === "levelUp") {
-        this.sweep(400, 1200, 0.2, 0.06, "square");
+        this.sweep(400, 1200, 0.2, 0.25, "square");
       }
       if (event.type === "gameOver") {
-        this.sweep(400, 60, 0.3, 0.1, "triangle");
+        this.sweep(400, 60, 0.3, 0.25, "triangle");
       }
     }
   }
