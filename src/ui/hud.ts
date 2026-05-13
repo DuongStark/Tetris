@@ -1,11 +1,13 @@
 import { gameBridge } from "../game/bridge";
 import { Sfx } from "../game/audio/sfx";
-import downIcon from "../game/assets/down.png";
-import holdIcon from "../game/assets/hold.png";
-import leftIcon from "../game/assets/left.png";
-import rightIcon from "../game/assets/right.png";
-import rotateIcon from "../game/assets/rotate.png";
-import upIcon from "../game/assets/up.png";
+const SVG_ICONS = {
+  up: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 8L40 32H8L24 8Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>`,
+  down: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 40L8 16H40L24 40Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>`,
+  left: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 24L32 8V40L8 24Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>`,
+  right: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40 24L16 8V40L40 24Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>`,
+  rotate: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M34 14A14 14 0 1 0 38 24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M34 8L40 14L34 20" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  hold: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="28" height="28" rx="4" stroke="currentColor" stroke-width="3" fill="none"/><path d="M18 18H30V30H18Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" fill="none"/></svg>`,
+} as const;
 import { getShapeCells, PIECE_COLORS } from "../game/simulation/pieces";
 import type { GameEvent, GameState, InputAction, PieceType } from "../game/simulation/types";
 
@@ -14,15 +16,15 @@ const PIECE_HEX = Object.fromEntries(
 ) as Record<PieceType, string>;
 
 const DPAD_ICONS = {
-  hardDrop: upIcon,
-  moveLeft: leftIcon,
-  moveRight: rightIcon,
-  softDrop: downIcon,
+  hardDrop: SVG_ICONS.up,
+  moveLeft: SVG_ICONS.left,
+  moveRight: SVG_ICONS.right,
+  softDrop: SVG_ICONS.down,
 } satisfies Partial<Record<InputAction, string>>;
 
 const ACTION_ICONS = {
-  rotateCW: rotateIcon,
-  hold: holdIcon,
+  rotateCW: SVG_ICONS.rotate,
+  hold: SVG_ICONS.hold,
 } satisfies Partial<Record<InputAction, string>>;
 
 export function mountHud(root: HTMLElement): void {
@@ -56,24 +58,24 @@ export function mountHud(root: HTMLElement): void {
       <div class="mobile-controls" aria-label="Touch controls">
         <div class="aux-controls">
           <button class="asset-button action-button action-button--rotate" data-action="rotateCW" aria-label="Rotate clockwise">
-            <img class="asset-button__icon" src="${ACTION_ICONS.rotateCW}" alt="" draggable="false" />
+            <span class="asset-button__icon">${ACTION_ICONS.rotateCW}</span>
           </button>
           <button class="asset-button action-button action-button--hold" data-action="hold" aria-label="Hold piece">
-            <img class="asset-button__icon" src="${ACTION_ICONS.hold}" alt="" draggable="false" />
+            <span class="asset-button__icon">${ACTION_ICONS.hold}</span>
           </button>
         </div>
         <div class="dpad">
           <button class="asset-button dpad-button dpad-button--up" data-action="hardDrop" aria-label="Hard drop">
-            <img class="asset-button__icon" src="${DPAD_ICONS.hardDrop}" alt="" draggable="false" />
+            <span class="asset-button__icon">${DPAD_ICONS.hardDrop}</span>
           </button>
           <button class="asset-button dpad-button dpad-button--left" data-action="moveLeft" aria-label="Move left">
-            <img class="asset-button__icon" src="${DPAD_ICONS.moveLeft}" alt="" draggable="false" />
+            <span class="asset-button__icon">${DPAD_ICONS.moveLeft}</span>
           </button>
           <button class="asset-button dpad-button dpad-button--right" data-action="moveRight" aria-label="Move right">
-            <img class="asset-button__icon" src="${DPAD_ICONS.moveRight}" alt="" draggable="false" />
+            <span class="asset-button__icon">${DPAD_ICONS.moveRight}</span>
           </button>
           <button class="asset-button dpad-button dpad-button--down" data-action="softDrop" aria-label="Soft drop">
-            <img class="asset-button__icon" src="${DPAD_ICONS.softDrop}" alt="" draggable="false" />
+            <span class="asset-button__icon">${DPAD_ICONS.softDrop}</span>
           </button>
         </div>
       </div>
