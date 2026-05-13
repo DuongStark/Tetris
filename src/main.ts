@@ -38,8 +38,9 @@ new Phaser.Game({
     height: window.innerHeight
   },
   render: {
-    antialias: true,
-    pixelArt: false,
+    antialias: false,
+    pixelArt: true,
+    roundPixels: true,
     powerPreference: "high-performance"
   },
   input: {

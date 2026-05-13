@@ -106,10 +106,7 @@ export class GameScene extends Phaser.Scene {
         this.cameras.main.flash(90, 255, 43, 214);
       }
       if (event.type === "levelUp" && !reduced) {
-        this.cameras.main.flash(80, 255, 230, 109);
-        this.cameras.main.zoomTo(1.035, 90, Phaser.Math.Easing.Sine.Out, true, (_camera, progress) => {
-          if (progress === 1) this.cameras.main.zoomTo(1, 130);
-        });
+        this.cameras.main.flash(60, 255, 230, 109);
       }
       if (event.type === "gameOver") {
         this.gameOverFx(reduced);
@@ -144,12 +141,12 @@ export class GameScene extends Phaser.Scene {
   private drawBackdrop(g: Phaser.GameObjects.Graphics): void {
     const w = BOARD_WIDTH * this.cell;
     const h = BOARD_HEIGHT * this.cell;
-    g.fillStyle(0x080a19, 0.86);
-    g.fillRoundedRect(this.boardX - 10, this.boardY - 10, w + 20, h + 20, 8);
-    g.lineStyle(2, 0x00f5ff, 0.7);
-    g.strokeRoundedRect(this.boardX - 10, this.boardY - 10, w + 20, h + 20, 8);
-    g.lineStyle(8, 0xff2bd6, 0.09);
-    g.strokeRoundedRect(this.boardX - 16, this.boardY - 16, w + 32, h + 32, 10);
+    g.fillStyle(0x080a19, 0.92);
+    g.fillRect(this.boardX - 10, this.boardY - 10, w + 20, h + 20);
+    g.lineStyle(2, 0x00f5ff, 0.8);
+    g.strokeRect(this.boardX - 10, this.boardY - 10, w + 20, h + 20);
+    g.lineStyle(2, 0xff2bd6, 0.15);
+    g.strokeRect(this.boardX - 14, this.boardY - 14, w + 28, h + 28);
 
     g.lineStyle(1, 0xffffff, 0.055);
     for (let x = 0; x <= BOARD_WIDTH; x += 1) {
@@ -190,23 +187,26 @@ export class GameScene extends Phaser.Scene {
   }
 
   private drawCell(g: Phaser.GameObjects.Graphics, x: number, y: number, color: number, alpha: number, ghost = false): void {
-    const pad = ghost ? Math.max(3, Math.floor(this.cell * 0.15)) : Math.max(1, Math.floor(this.cell * 0.035));
+    const pad = ghost ? Math.max(3, Math.floor(this.cell * 0.15)) : 1;
     const px = this.boardX + x * this.cell + pad;
     const py = this.boardY + y * this.cell + pad;
     const size = this.cell - pad * 2;
 
+    g.fillStyle(color, ghost ? 0.1 : 0.92 * alpha);
+    g.fillRect(px, py, size, size);
+
     if (!ghost) {
-      g.fillStyle(color, 0.24 * alpha);
-      g.fillRoundedRect(px - 3, py - 3, size + 6, size + 6, 6);
+      g.fillStyle(0xffffff, 0.2 * alpha);
+      g.fillRect(px, py, size, 2);
+      g.fillRect(px, py, 2, size);
+
+      g.fillStyle(0x000000, 0.3 * alpha);
+      g.fillRect(px, py + size - 2, size, 2);
+      g.fillRect(px + size - 2, py, 2, size);
     }
-    g.fillStyle(color, ghost ? 0.08 : 0.92 * alpha);
-    g.fillRoundedRect(px, py, size, size, 5);
-    if (!ghost) {
-      g.fillStyle(0xffffff, 0.14 * alpha);
-      g.fillRoundedRect(px + 2, py + 2, size - 4, Math.max(4, size * 0.22), 4);
-    }
-    g.lineStyle(1.5, 0xffffff, ghost ? 0.2 : 0.52 * alpha);
-    g.strokeRoundedRect(px + 1, py + 1, size - 2, size - 2, 4);
+
+    g.lineStyle(1, 0xffffff, ghost ? 0.2 : 0.4 * alpha);
+    g.strokeRect(px, py, size, size);
   }
 
   private rotateFx(piece: ActivePiece, color: number, reduced: boolean): void {
@@ -307,14 +307,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   private drawFxCell(g: Phaser.GameObjects.Graphics, x: number, y: number, color: number, alpha: number, strokeColor = 0xffffff): void {
-    const pad = Math.max(1, Math.floor(this.cell * 0.02));
+    const pad = 1;
     const px = this.boardX + x * this.cell + pad;
     const py = this.boardY + y * this.cell + pad;
     const size = this.cell - pad * 2;
     g.fillStyle(color, alpha);
-    g.fillRoundedRect(px - 3, py - 3, size + 6, size + 6, 6);
-    g.lineStyle(3, strokeColor, Math.min(0.9, alpha + 0.28));
-    g.strokeRoundedRect(px - 2, py - 2, size + 4, size + 4, 7);
+    g.fillRect(px - 2, py - 2, size + 4, size + 4);
+    g.lineStyle(2, strokeColor, Math.min(0.9, alpha + 0.28));
+    g.strokeRect(px - 1, py - 1, size + 2, size + 2);
   }
 
   private sparkAtPiece(piece: ActivePiece, color: number, quantity: number, speed: number): void {
@@ -330,7 +330,7 @@ export class GameScene extends Phaser.Scene {
       lifespan: 260,
       speed: { min: 40, max: this.fxSpeed(speed) },
       angle: { min: 0, max: 360 },
-      scale: { start: 0.46, end: 0 },
+      scale: { start: 1.2, end: 0.2 },
       quantity: budgetedQuantity,
       tint: color,
       blendMode: "ADD",
@@ -391,7 +391,7 @@ export class GameScene extends Phaser.Scene {
       lifespan: lines === 4 ? 520 : 320,
       speed: { min: 80, max: this.fxSpeed(lines === 4 ? 420 : 260) },
       angle: { min: 0, max: 360 },
-      scale: { start: lines === 4 ? 0.95 : 0.65, end: 0 },
+      scale: { start: lines === 4 ? 2.0 : 1.4, end: 0.2 },
       quantity: emitQuantity,
       blendMode: "ADD",
       emitting: false
@@ -415,8 +415,8 @@ export class GameScene extends Phaser.Scene {
   private createParticleTexture(): void {
     const spark = this.add.graphics();
     spark.fillStyle(0xffffff, 1);
-    spark.fillCircle(5, 5, 5);
-    spark.generateTexture("spark", 10, 10);
+    spark.fillRect(0, 0, 4, 4);
+    spark.generateTexture("spark", 4, 4);
     spark.destroy();
   }
 }
