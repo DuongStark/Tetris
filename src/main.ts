@@ -1,8 +1,11 @@
 import Phaser from "phaser";
 import { registerSW } from "virtual:pwa-register";
+import { inject } from "@vercel/analytics";
 import { GameScene } from "./phaser/scenes/GameScene";
 import { mountHud } from "./ui/hud";
 import "./styles.css";
+
+inject();
 
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) {

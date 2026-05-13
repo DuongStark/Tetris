@@ -11,8 +11,11 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "@vite-pwa/assets-generator": "^0.2.6",
+    "cloakbrowser": "^0.3.28",
     "phaser": "^3.90.0",
+    "playwright-core": "^1.60.0",
     "vite-plugin-pwa": "^0.21.1"
   },
   "devDependencies": {
