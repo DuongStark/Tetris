@@ -94,6 +94,7 @@ export function mountHud(root: HTMLElement): void {
           </button>
         </div>
       </div>
+      <button class="controls-toggle" aria-label="Toggle controls" data-toggle-controls>?</button>
     `
   );
 
@@ -107,6 +108,7 @@ export function mountHud(root: HTMLElement): void {
   const combo = query(root, "[data-ui='combo']");
 
   bindButtons(root, sfx);
+  initControlsToggle(root);
 
   const unlockAudio = () => {
     sfx.unlock();
@@ -291,6 +293,22 @@ function statusText(state: GameState): string {
   if (state.status === "paused") return "Paused";
   if (state.status === "gameOver") return "Game over";
   return state.combo > 0 ? `Combo ${state.combo + 1}` : "";
+}
+
+function initControlsToggle(root: HTMLElement): void {
+  const stored = localStorage.getItem("controls-hidden");
+  if (stored === "true") {
+    document.body.classList.add("controls-hidden");
+  }
+
+  const btn = root.querySelector<HTMLElement>("[data-toggle-controls]");
+  if (!btn) return;
+  btn.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const hidden = document.body.classList.toggle("controls-hidden");
+    localStorage.setItem("controls-hidden", String(hidden));
+  });
 }
 
 function query<T extends Element = HTMLElement>(root: HTMLElement, selector: string): T {

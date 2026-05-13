@@ -39,10 +39,8 @@ export class GameScene extends Phaser.Scene {
   private boardY = 0;
   private cell = 28;
   private hitStopMs = 0;
-  private floatOffset = 0;
   private floatTime = 0;
   private stars: Star[] = [];
-  private ghostPulseTime = 0;
   private gridScrollY = 0;
   private unsubscribeAction?: () => void;
 
@@ -75,24 +73,19 @@ export class GameScene extends Phaser.Scene {
 
   update(_time: number, delta: number): void {
     this.floatTime += delta;
-    this.ghostPulseTime += delta;
     this.gridScrollY = (this.gridScrollY + delta * 0.015) % 28;
-    const newOffset = Math.round(Math.sin(this.floatTime * 0.002) * 3);
-    const needsRedraw = newOffset !== this.floatOffset;
-    if (needsRedraw) this.floatOffset = newOffset;
 
     this.drawStars(delta);
     this.drawGrid();
 
     if (this.hitStopMs > 0) {
       this.hitStopMs -= delta;
-      if (needsRedraw) this.renderBoard();
       return;
     }
     const beforeRevision = this.engine.getRevision();
     const events = this.engine.tick(delta);
     this.handleEvents(events);
-    if (this.engine.getRevision() !== beforeRevision || needsRedraw) {
+    if (this.engine.getRevision() !== beforeRevision) {
       this.renderBoard();
     }
   }
@@ -167,13 +160,14 @@ export class GameScene extends Phaser.Scene {
     const height = this.scale.height;
     const topMargin = Math.floor(Math.max(68, height * 0.075));
     const isDesktop = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-    const bottomReserve = isDesktop ? 70 : height < 700 ? 214 : height < 760 ? 204 : 196;
+    const controlsHidden = document.body.classList.contains("controls-hidden");
+    const bottomReserve = isDesktop ? 70 : controlsHidden ? 40 : Math.max(160, height * 0.22);
     const maxCell = isDesktop ? 38 : 34;
     const availableHeight = Math.max(0, height - topMargin - bottomReserve);
     this.cell = Math.floor(Math.min((width - 104) / BOARD_WIDTH, availableHeight / BOARD_HEIGHT, maxCell));
     this.cell = Math.max(18, this.cell);
     this.boardX = Math.floor((width - this.cell * BOARD_WIDTH) / 2);
-    this.boardY = topMargin + this.floatOffset;
+    this.boardY = topMargin;
 
     const state = this.engine.getState();
     const ghost = this.engine.getGhostPiece();
@@ -275,7 +269,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   private drawGhost(g: Phaser.GameObjects.Graphics, ghost: GameState["active"]): void {
-    const pulse = 0.18 + Math.abs(Math.sin(this.ghostPulseTime * 0.004)) * 0.18;
     const color = PIECE_COLORS[ghost.type];
     for (const cell of getCells(ghost)) {
       if (cell.y >= 0) {
@@ -283,11 +276,9 @@ export class GameScene extends Phaser.Scene {
         const px = this.boardX + cell.x * this.cell + pad;
         const py = this.boardY + cell.y * this.cell + pad;
         const size = this.cell - pad * 2;
-        // Fill with piece color at low alpha
-        g.fillStyle(color, 0.12 * pulse * 4);
+        g.fillStyle(color, 0.12);
         g.fillRect(px, py, size, size);
-        // Neon outline
-        g.lineStyle(2, color, 0.35 + pulse * 0.5);
+        g.lineStyle(2, color, 0.45);
         g.strokeRect(px, py, size, size);
       }
     }
