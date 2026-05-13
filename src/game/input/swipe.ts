@@ -6,8 +6,8 @@ const TAP_MAX_TIME = 200;
 const TAP_MAX_DIST = 10;
 const HARD_DROP_DIST = 120;
 const HARD_DROP_VELOCITY = 0.5;
-const DAS_DELAY = 150;
-const ARR_DELAY = 50;
+const DAS_DELAY = 220;
+const ARR_DELAY = 85;
 
 export function mountSwipeControls(container: HTMLElement): void {
   let startX = 0;
