@@ -1,14 +1,14 @@
 import { gameBridge } from "../game/bridge";
 import { Sfx } from "../game/audio/sfx";
 const SVG_ICONS = {
-  up: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 8L40 32H8L24 8Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>`,
-  down: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 40L8 16H40L24 40Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>`,
-  left: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 24L32 8V40L8 24Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>`,
-  right: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40 24L16 8V40L40 24Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>`,
-  rotate: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M34 14A14 14 0 1 0 38 24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M34 8L40 14L34 20" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-  hold: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="28" height="28" rx="4" stroke="currentColor" stroke-width="3" fill="none"/><path d="M18 18H30V30H18Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" fill="none"/></svg>`,
-  pause: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="12" width="6" height="24" rx="2" fill="currentColor"/><rect x="28" y="12" width="6" height="24" rx="2" fill="currentColor"/></svg>`,
-  restart: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 24A12 12 0 1 1 24 36" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M12 18V24H18" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  up: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><path d="M7 3h2v2h2v2h2v2h-2v-2h-2v-2h-2v2h-2v2h-2v-2h2v-2h2v-2z" fill="currentColor"/></svg>`,
+  down: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><path d="M7 13h2v-2h2v-2h2v-2h-2v2h-2v2h-2v-2h-2v-2h-2v2h2v2h2v2z" fill="currentColor"/></svg>`,
+  left: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><path d="M3 7v2h2v2h2v2h2v-2h-2v-2h-2v-2h2v-2h2v-2h-2v2h-2v2h-2z" fill="currentColor"/></svg>`,
+  right: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><path d="M13 7v2h-2v2h-2v2h-2v-2h2v-2h2v-2h-2v-2h-2v-2h2v2h2v2h2z" fill="currentColor"/></svg>`,
+  rotate: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><path d="M10 2h2v2h-2zM12 4h2v2h-2zM12 6v4h-2v2h-4v-2h-2v-4h2v-2h4v2h2zM10 6h-4v-2h-2v4h2v2h4v-2h2v-4h-2v2z" fill="currentColor"/><path d="M10 2h-4v2h4v-2z" fill="currentColor"/></svg>`,
+  hold: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><path d="M3 3h10v10h-10zM5 5v6h6v-6z" fill="currentColor" fill-rule="evenodd"/><path d="M7 7h2v2h-2z" fill="currentColor"/></svg>`,
+  pause: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><path d="M4 3h3v10h-3zM9 3h3v10h-3z" fill="currentColor"/></svg>`,
+  restart: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><path d="M7 2h4v2h2v2h-2v-2h-4v-2zM5 4h2v2h-2zM3 6h2v4h-2zM5 10h2v2h-2zM7 12h4v2h-4zM11 10h2v2h-2zM11 6h2v2h-2z" fill="currentColor"/><path d="M11 1h2v2h-2zM13 3h2v2h-2z" fill="currentColor"/></svg>`,
 } as const;
 import { getShapeCells, PIECE_COLORS } from "../game/simulation/pieces";
 import type { GameEvent, GameState, InputAction, PieceType } from "../game/simulation/types";

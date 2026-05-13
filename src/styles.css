@@ -333,6 +333,7 @@ button {
   width: 100%;
   height: 100%;
   filter: drop-shadow(0 0 4px currentColor);
+  image-rendering: pixelated;
 }
 
 .orb-button {
@@ -424,6 +425,7 @@ button {
   width: 100%;
   height: 100%;
   filter: drop-shadow(0 0 6px currentColor);
+  image-rendering: pixelated;
 }
 
 .action-button--hold .asset-button__icon {
