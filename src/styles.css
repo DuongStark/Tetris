@@ -98,7 +98,7 @@ button {
 
 .score-panel__score {
   color: #fff;
-  font-size: clamp(16px, 5vw, 26px);
+  font-size: clamp(14px, 4vw, 22px);
   line-height: 1;
   text-shadow: 0 0 8px rgba(0, 245, 255, 0.6);
   transition: transform 80ms steps(2), color 80ms steps(2);
@@ -152,11 +152,11 @@ button {
 }
 
 .side-panel--hold {
-  left: max(8px, calc(50% - 190px));
+  left: max(4px, calc(50% - 210px));
 }
 
 .side-panel--next {
-  right: max(8px, calc(50% - 190px));
+  right: max(4px, calc(50% - 210px));
 }
 
 .side-panel__label {
@@ -280,21 +280,21 @@ button {
 }
 
 .aux-controls {
-  left: 4px;
+  left: 8px;
   bottom: calc(22px + var(--safe-bottom));
   display: grid;
-  grid-template-columns: repeat(2, 72px);
-  gap: 0 1px;
+  grid-template-columns: repeat(2, 68px);
+  gap: 0 8px;
   place-items: center;
 }
 
 .dpad {
-  right: 4px;
+  right: 8px;
   bottom: calc(22px + var(--safe-bottom));
   display: grid;
-  grid-template-columns: repeat(3, 58px);
-  grid-template-rows: repeat(3, 50px);
-  gap: 2px;
+  grid-template-columns: repeat(3, 52px);
+  grid-template-rows: repeat(3, 46px);
+  gap: 4px;
   place-items: center;
 }
 
@@ -343,9 +343,9 @@ button {
   position: relative;
   display: grid;
   place-items: center;
-  width: 56px;
-  height: 56px;
-  padding: 12px;
+  width: 48px;
+  height: 48px;
+  padding: 10px;
   border: 2px solid rgba(211, 226, 255, 0.3);
   background: rgba(43, 54, 96, 0.3);
   opacity: 0.9;
@@ -354,9 +354,9 @@ button {
 }
 
 .action-button {
-  width: 64px;
-  height: 64px;
-  padding: 14px;
+  width: 56px;
+  height: 56px;
+  padding: 12px;
 }
 
 .action-button--rotate {
@@ -497,14 +497,14 @@ button {
 @media (max-width: 360px) {
   .mobile-controls {
     gap: 9px;
-    padding-inline: 8px;
+    padding-inline: 4px;
   }
 
   .aux-controls {
     left: 0;
     bottom: calc(18px + var(--safe-bottom));
-    grid-template-columns: repeat(2, 65px);
-    grid-template-rows: 65px 31px;
+    grid-template-columns: repeat(2, 58px);
+    gap: 0 6px;
   }
 
   .orb-button {
@@ -519,21 +519,22 @@ button {
   }
 
   .action-button {
-    width: 58px;
-    height: 58px;
+    width: 50px;
+    height: 50px;
   }
 
   .dpad {
     right: 0;
     bottom: calc(18px + var(--safe-bottom));
-    grid-template-columns: repeat(3, 52px);
-    grid-template-rows: repeat(3, 46px);
-    gap: 2px;
+    grid-template-columns: repeat(3, 46px);
+    grid-template-rows: repeat(3, 40px);
+    gap: 3px;
   }
 
-  .dpad-button {
-    width: 50px;
-    height: 50px;
+  .asset-button {
+    width: 42px;
+    height: 42px;
+    padding: 8px;
   }
 
   .side-panel {
