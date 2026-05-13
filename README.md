@@ -4,7 +4,7 @@
 
 ### A cyberpunk-themed Tetris with glowing visuals, particle effects, and satisfying synth audio.
 
-[![Play Now](https://img.shields.io/badge/Play-Live%20Demo-ff2bd6?style=for-the-badge)](https://tetris-eosin-mu.vercel.app)
+[![Play Now](https://img.shields.io/badge/Play-Live%20Demo-ff2bd6?style=for-the-badge)](https://tetris.pixpress.art)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
@@ -104,7 +104,7 @@ npm run build
 
 ## Live Demo
 
-**[Play Neon Tetris](https://tetris-eosin-mu.vercel.app)**
+**[Play Neon Tetris](https://tetris.pixpress.art)**
 
 ---
 
